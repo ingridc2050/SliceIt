@@ -7,9 +7,15 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 public class SliceItController implements ActionListener {
 	private final JFrame gameJFrame;
+	private JPanel mainPanel;
+	private JPanel rulesPanel;
+	private JPanel gamePanel;
+	private JPanel leaderBoardPanel;
 	private JFrame gameWindow;
 	private JFrame rulesWindow;
 	private JFrame leaderWindow;
@@ -29,74 +35,126 @@ public class SliceItController implements ActionListener {
 		gameJFrame.setLocation(50, 50);
 		gameJFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		Container gameContentPane = gameJFrame.getContentPane();
-		gameContentPane.setLayout(null);
-		gameContentPane.setBackground(Color.orange);
-		gameJFrame.setVisible(true);
+		mainPanel = new JPanel();
+	    mainPanel.setLayout(null);
+	    mainPanel.setBackground(Color.orange);
+
+	    gameJFrame.getContentPane().add(mainPanel);
+        gameJFrame.setVisible(true);
 		
 		gameButton = new JButton("Play");
 		gameButton.setBounds(150, 120, 200, 40);
 		gameButton.addActionListener(this);
-		gameContentPane.add(gameButton);
+		mainPanel.add(gameButton);
 		
 		rulesButton = new JButton("Rules");
 		rulesButton.setBounds(150, 170, 200, 40);
 		rulesButton.addActionListener(this);
-		gameContentPane.add(rulesButton);
+		mainPanel.add(rulesButton);
 		
 		leaderButton = new JButton("Leaderboard");
 		leaderButton.setBounds(150, 220, 200, 40);
 		leaderButton.addActionListener(this);
-		gameContentPane.add(leaderButton);
+		mainPanel.add(leaderButton);
 	}
+	
+	private void rulesPanel() {
+		rulesPanel = new JPanel();
+		rulesPanel.setLayout(null);
+        rulesPanel.setBackground(Color.pink);
+        // You can add any content to the new window as needed.
+        
+        JLabel rulesLabel = new JLabel(
+        	    "<html>Game Rules:<br/>" +
+        	    "1. Players need to slice as many fruits as they can while avoiding bombs.<br/>" +
+        	    "2. The game is lost if the player misses a single fruit.<br/>" +
+        	    "3. The game is lost if the player slices a bomb.</html>"
+        	);
+
+        rulesLabel.setBounds(50, 50, 400, 200);
+        rulesPanel.add(rulesLabel);
+        // Back button to return to the main menu
+        JButton backButton = new JButton("Back");
+        backButton.setBounds(200, 300, 100, 40);
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                returnToMainPanel();
+            }
+        });
+        rulesPanel.add(backButton);
+        
+        gameJFrame.getContentPane().removeAll();
+        gameJFrame.getContentPane().add(rulesPanel);
+        gameJFrame.revalidate();
+        gameJFrame.repaint();
+    }
+	
+    
+	private void returnToMainPanel() {
+        
+        gameJFrame.getContentPane().removeAll();
+        gameJFrame.getContentPane().add(mainPanel);
+        gameJFrame.revalidate();
+        gameJFrame.repaint();
+    }
+	
+	
+	private void gamePanel() {
+		gamePanel = new JPanel();
+		gamePanel.setLayout(null);
+        gamePanel.setBackground(Color.pink);
+        JButton backButton = new JButton("Back");
+        backButton.setBounds(200, 300, 100, 40);
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                returnToMainPanel();
+            }
+        });
+        gamePanel.add(backButton);
+        
+        gameJFrame.getContentPane().removeAll();
+        gameJFrame.getContentPane().add(gamePanel);
+        gameJFrame.revalidate();
+        gameJFrame.repaint();
+    
+	}
+	private void leaderboardPanel() {
+		leaderBoardPanel = new JPanel();
+		leaderBoardPanel.setLayout(null);
+		leaderBoardPanel.setBackground(Color.pink);
+        JButton backButton = new JButton("Back");
+        backButton.setBounds(200, 300, 100, 40);
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                returnToMainPanel();
+            }
+        });
+        leaderBoardPanel.add(backButton);
+        
+        gameJFrame.getContentPane().removeAll();
+        gameJFrame.getContentPane().add(leaderBoardPanel);
+        gameJFrame.revalidate();
+        gameJFrame.repaint();
+    
+	}
+
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == gameButton) {
-            // Create a new JFrame for the game window
-            gameWindow = new JFrame("Game Window");
-            gameWindow.setSize(600, 400);
-            gameWindow.setLocation(100, 100);
-            gameWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Close this window when done
-
-            // You can add any content to the new window as needed.
-            Container gameWindowContent = gameWindow.getContentPane();
-            gameWindowContent.setLayout(null);
-            gameWindowContent.setBackground(Color.lightGray);
-
-            // Show the new game window
-            gameWindow.setVisible(true);
+           gamePanel();
         }
         
         // You can add additional logic for rulesButton and leaderButton
         if (e.getSource() == rulesButton) {
-            // Handle rules button action
-        	rulesWindow = new JFrame("Rules Window");
-        	rulesWindow.setSize(600, 400);
-        	rulesWindow.setLocation(100, 100);
-        	rulesWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Close this window when done
-
-            // You can add any content to the new window as needed.
-            Container rulesWindowContent = rulesWindow.getContentPane();
-            rulesWindowContent.setLayout(null);
-            rulesWindowContent.setBackground(Color.lightGray);
-
-            rulesWindow.setVisible(true);
+     
+        	rulesPanel();
         }
-
         if (e.getSource() == leaderButton) {
-            // Handle leaderboard button action
-        	leaderWindow = new JFrame("Leaderboard Window");
-        	leaderWindow.setSize(600, 400);
-        	leaderWindow.setLocation(100, 100);
-        	leaderWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Close this window when done
-
-            // You can add any content to the new window as needed.
-            Container leaderWindowContent = rulesWindow.getContentPane();
-            leaderWindowContent.setLayout(null);
-            leaderWindowContent.setBackground(Color.lightGray);
-
-            leaderWindow.setVisible(true);
+            leaderboardPanel();
         }
     }
 		
