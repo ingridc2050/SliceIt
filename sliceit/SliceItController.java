@@ -2,9 +2,16 @@ package sliceit;
 
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -16,10 +23,12 @@ public class SliceItController implements ActionListener {
 	private JPanel rulesPanel;
 	private JPanel gamePanel;
 	private JPanel leaderBoardPanel;
-	
+	private BufferedImage spriteSheet;
+	private BufferedImage[] unslicedFruits;
 	private JButton gameButton;
 	private JButton rulesButton;
 	private JButton leaderButton;
+	
 
 
 	public static void main(String[] args) {
@@ -38,6 +47,9 @@ public class SliceItController implements ActionListener {
 	    mainPanel.setBackground(Color.orange);
 
 	    gameJFrame.getContentPane().add(mainPanel);
+	    
+	    loadFruitImages();
+	    
         gameJFrame.setVisible(true);
 		
 		gameButton = new JButton("Play");
@@ -54,7 +66,66 @@ public class SliceItController implements ActionListener {
 		leaderButton.setBounds(150, 220, 200, 40);
 		leaderButton.addActionListener(this);
 		mainPanel.add(leaderButton);
+		
+		
 	}
+	
+
+
+	    
+
+	private void loadFruitImages() {
+	    try {
+	        spriteSheet = ImageIO.read(new File("images/newFruitsheet.png"));
+	        int fruitWidth = 101;  // Adjust according to your sprite sheet
+	        int fruitHeight = 85;
+	        int rows = 7;
+	        int cols = 1;
+	        unslicedFruits = new BufferedImage[rows * cols];
+
+	        for (int i = 0; i < rows; i++) {
+	            for (int j = 0; j < cols; j++) {
+	                BufferedImage original = spriteSheet.getSubimage(j * fruitWidth, i * fruitHeight, fruitWidth, fruitHeight);
+	                unslicedFruits[i * cols + j] = removeBackground(original);
+	            }
+	        }
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+	}
+
+	private BufferedImage removeBackground(BufferedImage image) {
+	    int width = image.getWidth();
+	    int height = image.getHeight();
+	    BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+	    Color backgroundColor = new Color(image.getRGB(0, 0)); // Assuming top-left is the background color
+
+	    for (int x = 0; x < width; x++) {
+	        for (int y = 0; y < height; y++) {
+	            int pixel = image.getRGB(x, y);
+	            Color color = new Color(pixel, true);
+
+	            if (isSimilarColor(color, backgroundColor)) {
+	                newImage.setRGB(x, y, 0x00FFFFFF); // Transparent pixel
+	            } else {
+	                newImage.setRGB(x, y, pixel);
+	            }
+	        }
+	    }
+	    return newImage;
+	}
+
+	private boolean isSimilarColor(Color c1, Color c2) {
+	    int threshold = 30; // Adjust if needed
+	    int diffR = Math.abs(c1.getRed() - c2.getRed());
+	    int diffG = Math.abs(c1.getGreen() - c2.getGreen());
+	    int diffB = Math.abs(c1.getBlue() - c2.getBlue());
+
+	    return (diffR < threshold && diffG < threshold && diffB < threshold);
+	}
+	
+	
 	
 	private void rulesPanel() {
 		rulesPanel = new JPanel();
@@ -99,9 +170,27 @@ public class SliceItController implements ActionListener {
 	
 	
 	private void gamePanel() {
-		gamePanel = new JPanel();
+		 gamePanel = new JPanel() {
+	            @Override
+	            protected void paintComponent(Graphics g) {
+	                super.paintComponent(g);
+	                if (unslicedFruits != null) {
+	                    int x = 50;
+	                    int y = 50;
+	                    for (BufferedImage img : unslicedFruits) {
+	                        g.drawImage(img, x, y, null);
+	                        x += 80;
+	                        if (x > 400) {
+	                            x = 50;
+	                            y += 80;
+	                        }
+	                    }
+	                }
+	            }
+	        };
 		gamePanel.setLayout(null);
         gamePanel.setBackground(Color.pink);
+        /*
         JButton backButton = new JButton("Back");
         backButton.setBounds(200, 300, 100, 40);
         backButton.addActionListener(new ActionListener() {
@@ -111,11 +200,20 @@ public class SliceItController implements ActionListener {
             }
         });
         gamePanel.add(backButton);
+        */
+        
+        
+        
+        
+        
         
         gameJFrame.getContentPane().removeAll();
         gameJFrame.getContentPane().add(gamePanel);
         gameJFrame.revalidate();
         gameJFrame.repaint();
+        
+        
+        
     
 	}
 	private void leaderboardPanel() {
