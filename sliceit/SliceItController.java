@@ -16,9 +16,7 @@ public class SliceItController implements ActionListener {
 	private JPanel rulesPanel;
 	private JPanel gamePanel;
 	private JPanel leaderBoardPanel;
-	private JFrame gameWindow;
-	private JFrame rulesWindow;
-	private JFrame leaderWindow;
+	
 	private JButton gameButton;
 	private JButton rulesButton;
 	private JButton leaderButton;
