@@ -16,6 +16,9 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
+
 
 public class SliceItController implements ActionListener {
 	private final JFrame gameJFrame;
@@ -32,9 +35,15 @@ public class SliceItController implements ActionListener {
 
 
 	public static void main(String[] args) {
-		new SliceItController();
+		SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+            	new SliceItController();
+            }
+        });
+    }
+		
 
-	}
+	
 	
 	public SliceItController() {
 		gameJFrame = new JFrame();
@@ -76,7 +85,7 @@ public class SliceItController implements ActionListener {
 
 	private void loadFruitImages() {
 	    try {
-	        spriteSheet = ImageIO.read(new File("images/newFruitsheet.png"));
+	        spriteSheet = ImageIO.read(new File("images/fruits.png"));
 	        int fruitWidth = 101;  // Adjust according to your sprite sheet
 	        int fruitHeight = 85;
 	        int rows = 7;
@@ -86,7 +95,7 @@ public class SliceItController implements ActionListener {
 	        for (int i = 0; i < rows; i++) {
 	            for (int j = 0; j < cols; j++) {
 	                BufferedImage original = spriteSheet.getSubimage(j * fruitWidth, i * fruitHeight, fruitWidth, fruitHeight);
-	                unslicedFruits[i * cols + j] = removeBackground(original);
+	                unslicedFruits[i * cols + j] = original;
 	            }
 	        }
 	    } catch (IOException e) {
@@ -94,37 +103,7 @@ public class SliceItController implements ActionListener {
 	    }
 	}
 
-	private BufferedImage removeBackground(BufferedImage image) {
-	    int width = image.getWidth();
-	    int height = image.getHeight();
-	    BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
-	    Color backgroundColor = new Color(image.getRGB(0, 0)); // Assuming top-left is the background color
-
-	    for (int x = 0; x < width; x++) {
-	        for (int y = 0; y < height; y++) {
-	            int pixel = image.getRGB(x, y);
-	            Color color = new Color(pixel, true);
-
-	            if (isSimilarColor(color, backgroundColor)) {
-	                newImage.setRGB(x, y, 0x00FFFFFF); // Transparent pixel
-	            } else {
-	                newImage.setRGB(x, y, pixel);
-	            }
-	        }
-	    }
-	    return newImage;
-	}
-
-	private boolean isSimilarColor(Color c1, Color c2) {
-	    int threshold = 30; // Adjust if needed
-	    int diffR = Math.abs(c1.getRed() - c2.getRed());
-	    int diffG = Math.abs(c1.getGreen() - c2.getGreen());
-	    int diffB = Math.abs(c1.getBlue() - c2.getBlue());
-
-	    return (diffR < threshold && diffG < threshold && diffB < threshold);
-	}
-	
 	
 	
 	private void rulesPanel() {
