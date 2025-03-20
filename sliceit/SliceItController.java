@@ -78,11 +78,8 @@ public class SliceItController implements ActionListener {
 		
 		
 	}
+
 	
-
-
-	    
-
 	private void loadFruitImages() {
 	    try {
 	        spriteSheet = ImageIO.read(new File("images/fruits.png"));
