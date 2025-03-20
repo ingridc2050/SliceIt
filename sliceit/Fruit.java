@@ -1,38 +1,51 @@
 package sliceit;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 public class Fruit {
-	    private float x, y;
+	    private int x, y;
+	    private float width, height;
 	    private float velocityX, velocityY;
-	    private boolean isSliced = false;
-	    final double gravity=1;
-	    private Image image;
+	    private BufferedImage image;
 	    
-	    private void update() {
-	    	
+	    
+	    public Fruit(BufferedImage image, int x, int y, float velocityX, float velocityY) {
+	        this.image = image;
+	        this.x = x;
+	        this.y = y;
+	        
+	        this.velocityX = velocityX;
+	        this.velocityY = velocityY;
+	        this.width = image.getWidth();
+	        this.height = image.getHeight();
 	    }
-	    
-       private void draw() {
-	    	
-	    }
-       public void slice() {
-           if (!isSliced) {
-               isSliced = true;
-    
-               System.out.println("Fruit sliced");
-           }
-       }
-	    
-       public boolean isOffScreen() {
-           return false;
-       }
-       
-       public boolean contains() {
-    	   return false;
-       }
-	    
-	public static void main(String[] args) {
-		
 
-	}
+	    
+	    public void update() {
+	         x += velocityX;
+	         y += velocityY;
+	         velocityY += 0.5f;
+	    }
+	    
+	    public void draw(Graphics2D g2d) {
+  
+            g2d.drawImage(image, x,y,null);
+            
+        }
+       
+	    
+	    public boolean isOffScreen(int panelWidth, int panelHeight) {
+            return (x + width < 0 || x - width > panelWidth || y - height > panelHeight);
+        }
+       
+	 // Check if the point (mx, my) is inside this object
+        public boolean contains(int mx, int my) {
+            int dx = mx - x;
+            int dy = my - y;
+            return dx * dx + dy * dy <= width* height;
+        }
+	    
+	
 
 }
