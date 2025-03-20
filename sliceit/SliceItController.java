@@ -155,7 +155,7 @@ public class SliceItController implements ActionListener {
 	
 	private void gamePanel() {
 	    JPanel gamePanel = new JPanel() {
-	    	// List to store the active fruits
+	    	// List to store the fruits
 	        private List<Fruit> fruits = new ArrayList<>();
 	        // Random generator for fruit spawn
 	        private Random rand = new Random();
@@ -173,35 +173,36 @@ public class SliceItController implements ActionListener {
 	        // Timer to update game logic every 20ms
 	        private Timer timer = new Timer(20, new ActionListener() {
 	            public void actionPerformed(ActionEvent e) {
-	                // Update each fruit's position
-	                Iterator<Fruit> it = fruits.iterator();
-	                while (it.hasNext()) {
-	                    Fruit f = it.next();
-	                    f.update();
-	                    // Remove the fruit if it has left the screen
-	                    if (f.isOffScreen(getWidth(), getHeight())) {
-	                        it.remove();
-	                    }
-	                }
-	                // Spawn a new fruit occasionally 
+	               
+	                // Spawning a new fruit occasionally 
 	                if (rand.nextDouble() < 0.05) {
 	                    int panelWidth = getWidth();
 	                    int panelHeight = getHeight();
 	                    int fruitIndex = rand.nextInt(unslicedFruits.length);
 	                    BufferedImage img = unslicedFruits[fruitIndex];
 	                    int fruitWidth = img.getWidth();
-	                    // Choose a random x-coordinate ensuring the fruit is fully visible
+	                    // Choosing a random x-coordinate
 	                    int x = rand.nextInt(Math.max(panelWidth - fruitWidth, 1));
-	                    // Position the fruit at the bottom edge
+	                    // Positioning the fruit at the bottom edge
 	                    int y = panelHeight - img.getHeight();
-	                    // For upward motion, set a negative y velocity.
-	                    // You can adjust the range as needed
+	                    // negative y velocity for upward motion
+	             
 	                    float velocityY = -(float)(rand.nextDouble() * 5 + 10); 
 	                    // Horizontal drift
 	                    float velocityX = (float) (rand.nextDouble() * 4 - 2); // from -2 to 2
 	                    Fruit fruit = new Fruit(img, x, y, velocityX, velocityY);
 	                    fruits.add(fruit);
 	                }
+	                
+	                // Update each fruit's position
+	            	for (int i = fruits.size() - 1; i >= 0; i--) {
+	            	    Fruit f = fruits.get(i);
+	            	    f.update();
+	            	    if (f.isOffScreen(getWidth(), getHeight())) {
+	            	        fruits.remove(i);
+	            	    }
+	            	}
+	                
 	                repaint();
 	            }
 	        });
@@ -219,7 +220,7 @@ public class SliceItController implements ActionListener {
 	            }
 	        }
 
-	        // Instance initializer block to start the timer as soon as the panel is created
+	        // Instance initializer  to start the timer as soon as the panel is created
 	        {
 	            timer.start();
 	        }
