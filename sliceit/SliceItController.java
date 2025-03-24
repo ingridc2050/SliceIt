@@ -80,8 +80,7 @@ public class SliceItController implements ActionListener {
 		leaderButton.setBounds(150, 220, 200, 40);
 		leaderButton.addActionListener(this);
 		mainPanel.add(leaderButton);
-		
-		
+	
 	}
 	
 
