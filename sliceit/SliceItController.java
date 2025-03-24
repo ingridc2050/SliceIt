@@ -161,6 +161,7 @@ public class SliceItController implements ActionListener {
 	
 	private void gamePanel() {
 	    JPanel gamePanel = new JPanel() {
+<<<<<<< HEAD
 	        // List to store the active fruits
 	        private List<Fruit> fruits = new ArrayList<>();
 	        // List to store bombs
@@ -171,10 +172,20 @@ public class SliceItController implements ActionListener {
 	        private BufferedImage backgroundImage;
 
 	        {
+=======
+	    	// List to store the fruits
+	        private List<Fruit> fruits = new ArrayList<>();
+	        // Random generator for fruit spawn
+	        private Random rand = new Random();
+	        
+	    	private BufferedImage backgroundImage;
+	    	{
+>>>>>>> 12063250c8655dd306ed9f5eb2ec7965439dee7b
 	            try {
 	                backgroundImage = ImageIO.read(new File("images/background.png"));
 	            } catch (IOException e) {
 	                e.printStackTrace();
+<<<<<<< HEAD
 	            }
 	        }
 
@@ -240,6 +251,49 @@ public class SliceItController implements ActionListener {
 	            timer.start();
 	        }
 
+=======
+	            }
+	        
+	    	}
+	        
+	        // Timer to update game logic every 20ms
+	        private Timer timer = new Timer(20, new ActionListener() {
+	            public void actionPerformed(ActionEvent e) {
+	               
+	                // Spawning a new fruit occasionally 
+	                if (rand.nextDouble() < 0.05) {
+	                    int panelWidth = getWidth();
+	                    int panelHeight = getHeight();
+	                    int fruitIndex = rand.nextInt(unslicedFruits.length);
+	                    BufferedImage img = unslicedFruits[fruitIndex];
+	                    int fruitWidth = img.getWidth();
+	                    // Choosing a random x-coordinate
+	                    int x = rand.nextInt(Math.max(panelWidth - fruitWidth, 1));
+	                    // Positioning the fruit at the bottom edge
+	                    int y = panelHeight - img.getHeight();
+	                    // negative y velocity for upward motion
+	             
+	                    float velocityY = -(float)(rand.nextDouble() * 5 + 10); 
+	                    // Horizontal drift
+	                    float velocityX = (float) (rand.nextDouble() * 4 - 2); // from -2 to 2
+	                    Fruit fruit = new Fruit(img, x, y, velocityX, velocityY);
+	                    fruits.add(fruit);
+	                }
+	                
+	                // Update each fruit's position
+	            	for (int i = fruits.size() - 1; i >= 0; i--) {
+	            	    Fruit f = fruits.get(i);
+	            	    f.update();
+	            	    if (f.isOffScreen(getWidth(), getHeight())) {
+	            	        fruits.remove(i);
+	            	    }
+	            	}
+	                
+	                repaint();
+	            }
+	        });
+
+>>>>>>> 12063250c8655dd306ed9f5eb2ec7965439dee7b
 	        // Override paintComponent to draw the fruits
 	        @Override
 	        protected void paintComponent(Graphics g) {
@@ -251,6 +305,7 @@ public class SliceItController implements ActionListener {
 	            for (Fruit f : fruits) {
 	                f.draw(g2d);
 	            }
+<<<<<<< HEAD
 	            for (Bomb b : bombs) {
 	            	g2d.drawImage(b.getImage(), b.getX(), b.getY(), null);
 	            }
@@ -260,6 +315,14 @@ public class SliceItController implements ActionListener {
 //	        {
 //	            timer.start();
 //	        }
+=======
+	        }
+
+	        // Instance initializer  to start the timer as soon as the panel is created
+	        {
+	            timer.start();
+	        }
+>>>>>>> 12063250c8655dd306ed9f5eb2ec7965439dee7b
 	    };
 
 	    gamePanel.setLayout(null);
