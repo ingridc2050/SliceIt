@@ -32,6 +32,7 @@ public class SliceItController implements ActionListener {
 	private JPanel gamePanel;
 	private JPanel leaderBoardPanel;
 	private BufferedImage spriteSheet;
+	private BufferedImage bomb;
 	private BufferedImage[] unslicedFruits;
 	private JButton gameButton;
 	private JButton rulesButton;
@@ -63,6 +64,7 @@ public class SliceItController implements ActionListener {
 	    gameJFrame.getContentPane().add(mainPanel);
 	    
 	    loadFruitImages();
+	    loadBombImage();
 	    
         gameJFrame.setVisible(true);
 		
@@ -82,11 +84,8 @@ public class SliceItController implements ActionListener {
 		mainPanel.add(leaderButton);
 	
 	}
+
 	
-
-
-	    
-
 	private void loadFruitImages() {
 	    try {
 	        spriteSheet = ImageIO.read(new File("images/fruits.png"));
@@ -106,7 +105,14 @@ public class SliceItController implements ActionListener {
 	        e.printStackTrace();
 	    }
 	}
-
+	
+	private void loadBombImage() {
+		try {
+			bomb = ImageIO.read(new File("images/bombimg.png"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	
 	
@@ -154,6 +160,18 @@ public class SliceItController implements ActionListener {
 	
 	private void gamePanel() {
 	    JPanel gamePanel = new JPanel() {
+<<<<<<< HEAD
+	        // List to store the active fruits
+	        private List<Fruit> fruits = new ArrayList<>();
+	        // List to store bombs
+	        private List<Bomb> bombs = new ArrayList<>();
+	        // Random generator for fruit spawn
+	        private Random rand = new Random();
+
+	        private BufferedImage backgroundImage;
+
+	        {
+=======
 	    	// List to store the fruits
 	        private List<Fruit> fruits = new ArrayList<>();
 	        // Random generator for fruit spawn
@@ -161,10 +179,78 @@ public class SliceItController implements ActionListener {
 	        
 	    	private BufferedImage backgroundImage;
 	    	{
+>>>>>>> 12063250c8655dd306ed9f5eb2ec7965439dee7b
 	            try {
 	                backgroundImage = ImageIO.read(new File("images/background.png"));
 	            } catch (IOException e) {
 	                e.printStackTrace();
+<<<<<<< HEAD
+	            }
+	        }
+
+	        // Timer to update game logic every 20ms
+	        private Timer timer = new Timer(20, new ActionListener() {
+	            public void actionPerformed(ActionEvent e) {
+	                // Update each fruit's position
+	                Iterator<Fruit> it = fruits.iterator();
+	                while (it.hasNext()) {
+	                    Fruit f = it.next();
+	                    f.update();
+	                    // Remove the fruit if it has left the screen
+	                    if (f.isOffScreen(getWidth(), getHeight())) {
+	                        it.remove();
+	                    }
+	                }
+
+	                // Spawn a new fruit occasionally 
+	                if (rand.nextDouble() < 0.05) {
+	                    int panelWidth = getWidth();
+	                    int fruitIndex = rand.nextInt(unslicedFruits.length);
+	                    BufferedImage img = unslicedFruits[fruitIndex];
+	                    int x = rand.nextInt(Math.max(panelWidth - img.getWidth(), 1));
+	                    int y = getHeight() - img.getHeight();
+	                    float velocityY = -(float) (rand.nextDouble() * 5 + 10); 
+	                    float velocityX = (float) (rand.nextDouble() * 4 - 2);
+	                    Fruit fruit = new Fruit(img, x, y, velocityX, velocityY);
+	                    fruits.add(fruit);
+	                }
+
+	                // Update each bomb's position
+	                Iterator<Bomb> bombIterator = bombs.iterator();
+	                while (bombIterator.hasNext()) {
+	                    Bomb b = bombIterator.next();
+	                    b.update();
+	                    if (b.getY() > getHeight()) {
+	                        bombIterator.remove();
+	                    }
+	                }
+
+	                // Spawn bombs at a lower probability than fruits
+	                if (rand.nextDouble() < 0.02) {
+	                    int panelWidth = getWidth();
+	                    
+	                    // Ensure bomb image is loaded before accessing its width/height
+	                    if (bomb != null) {
+	                        int x = rand.nextInt(Math.max(panelWidth - bomb.getWidth(), 1));
+	                        int y = getHeight() - bomb.getHeight();
+	                        float velocityY = -(float) (rand.nextDouble() * 5 + 10);
+	                        float velocityX = (float) (rand.nextDouble() * 4 - 2);
+	                        Bomb newBomb = new Bomb(bomb, x, y, velocityX, velocityY);
+	                        bombs.add(newBomb);
+	                    } else {
+	                        System.err.println("Error: Bomb image is not loaded.");
+	                    }
+	                }
+
+	                repaint();
+	            }
+	        });
+
+	        {
+	            timer.start();
+	        }
+
+=======
 	            }
 	        
 	    	}
@@ -206,6 +292,7 @@ public class SliceItController implements ActionListener {
 	            }
 	        });
 
+>>>>>>> 12063250c8655dd306ed9f5eb2ec7965439dee7b
 	        // Override paintComponent to draw the fruits
 	        @Override
 	        protected void paintComponent(Graphics g) {
@@ -217,12 +304,24 @@ public class SliceItController implements ActionListener {
 	            for (Fruit f : fruits) {
 	                f.draw(g2d);
 	            }
+<<<<<<< HEAD
+	            for (Bomb b : bombs) {
+	            	g2d.drawImage(b.getImage(), b.getX(), b.getY(), null);
+	            }
+	        }
+
+//	        // Instance initializer block to start the timer as soon as the panel is created
+//	        {
+//	            timer.start();
+//	        }
+=======
 	        }
 
 	        // Instance initializer  to start the timer as soon as the panel is created
 	        {
 	            timer.start();
 	        }
+>>>>>>> 12063250c8655dd306ed9f5eb2ec7965439dee7b
 	    };
 
 	    gamePanel.setLayout(null);
