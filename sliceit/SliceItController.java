@@ -242,6 +242,15 @@ public class SliceItController implements ActionListener  {
 			private boolean showSlice = false;
 			private int sliceFrame = 0;
 			private Timer sliceTimer;
+			
+
+			 // Declare the one-minute game timer.
+	        private Timer gameTimer;
+	        // Countdown variables to display time remaining.
+	        private int timeRemaining = 60;
+	        private JLabel timeLabel;
+	        private Timer countdownTimer;
+	        
 
 			// Timer to update game logic every 20ms.
 			private Timer timer = new Timer(20, new ActionListener() {
@@ -300,15 +309,49 @@ public class SliceItController implements ActionListener  {
 				}
 			});
 
-			// Instance initializer: load background, start timer, and add mouse listener.
-
-			{
-				try {
-					backgroundImage = ImageIO.read(new File("images/background.png"));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				timer.start();
+			
+			
+	        
+	        // Instance initializer: load background, start timers, and add mouse listener.
+	        {
+	            try {
+	                backgroundImage = ImageIO.read(new File("images/background.png"));
+	            } catch (IOException e) {
+	                e.printStackTrace();
+	            }
+	            timer.start();
+	            
+	            
+	            gameTimer = new Timer(60000, new ActionListener() {
+	                @Override
+	                public void actionPerformed(ActionEvent e) {
+	                    if (!gameOver) {
+	                        timer.stop();
+	                        JOptionPane.showMessageDialog(gameJFrame, "You won! Your score: " + points);
+	                        returnToMainPanel();
+	                    }
+	                }
+	            });
+	            gameTimer.setRepeats(false);
+	            gameTimer.start();
+	            
+	         
+	            timeLabel = new JLabel("Time: " + timeRemaining);
+	            timeLabel.setForeground(Color.WHITE);
+	            timeLabel.setBounds(350, 20, 100, 30);
+	            add(timeLabel);
+	            // Countdown timer that updates every second.
+	            countdownTimer = new Timer(1000, new ActionListener() {
+	                public void actionPerformed(ActionEvent e) {
+	                    timeRemaining--;
+	                    timeLabel.setText("Time: " + timeRemaining);
+	                    if (timeRemaining <= 0) {
+	                        countdownTimer.stop();
+	                    }
+	                }
+	            });
+	            countdownTimer.start();
+	            
 				// Add a MouseMotionListener using an anonymous inner class.
 				addMouseMotionListener(new java.awt.event.MouseAdapter() {
 					@Override
@@ -345,6 +388,13 @@ public class SliceItController implements ActionListener  {
 								bombs.remove(b);
 								gameOver = true;
 								timer.stop(); // Stop game updates
+								
+	                            if (gameTimer != null) {
+	                                gameTimer.stop();
+	                            }
+	                            if (countdownTimer != null) {
+	                                countdownTimer.stop();
+	                            }
 								startExplosionAnimation();
 								points = 0;
 								break;
