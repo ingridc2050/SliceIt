@@ -1,6 +1,7 @@
 package sliceit;
 import java.awt.Graphics;
 
+
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -32,18 +33,12 @@ public class Fruit {
 	        
 	    }
 
-	    /**
-	     * 
-	     */
 	    public void update() {
 	         x += velocityX;
 	         y += velocityY;
-	         velocityY += 0.3f;
+	         velocityY += 0.3f; // gravity application
 	    }
 	    
-	    /**
-	     * @param g2d
-	     */
 	    public void draw(Graphics2D g2d) {
 	        if (isSliced) {
 	            g2d.drawImage(slicedImage, x, y, null);
@@ -52,35 +47,17 @@ public class Fruit {
 	        }
 	    }
             
-	    /**
-	     * 
-	     */
 	    public void slice() {
 	        if (!isSliced) {
 	            isSliced = true; // Switch to sliced image
 	        }
 	    }
        
-	    /**
-	     * 
-	     * @param panelWidth
-	     * @param panelHeight
-	     * @return
-	     */
 	    public boolean isOffScreen(int panelWidth, int panelHeight) {
 	        return (x + width < 0 || x - width > panelWidth || y - height > panelHeight);
 	    }
 
-	    /**
-	     * 
-	     * @param mx
-	     * @param my
-	     * @return
-	     */
 	    public boolean contains(int mx, int my) {
 	        return mx >= x && mx <= x + width && my >= y && my <= y + height;
 	    }
-	    
-	
-
 }
