@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +26,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
-public class SliceItController implements ActionListener {
+public class SliceItController implements ActionListener  {
 	private final JFrame gameJFrame;
 	private JPanel mainPanel;
 	private JPanel rulesPanel;
@@ -42,10 +43,6 @@ public class SliceItController implements ActionListener {
 	private BufferedImage fruitSliceFrames;
 	private int points = 0;
 	private JLabel pointLabel;
-
-	
-
-
 
 	public static void main(String[] args) {
 
@@ -76,6 +73,14 @@ public class SliceItController implements ActionListener {
 		loadSlicedFruitImages();
 
 		gameJFrame.setVisible(true);
+	    gameJFrame.getContentPane().add(mainPanel);
+	    
+	    loadFruitImages();
+	    loadBombImage();
+	    loadBombExplosionImages();
+	    
+        gameJFrame.setVisible(true);
+		
 		gameButton = new JButton("Play");
 		gameButton.setBounds(150, 120, 200, 40);
 		gameButton.addActionListener(this);
@@ -135,29 +140,37 @@ public class SliceItController implements ActionListener {
 			e.printStackTrace();
 		}
 	}
-
+	
+	
+	
 	private void loadBombExplosionImages() {
+	    try {
+	        BufferedImage spriteSheet = ImageIO.read(new File("images/bombSprites.png"));
 
-		try {
-			BufferedImage spriteSheet = ImageIO.read(new File("images/bombSprites.png"));
-			int rows = 4;
-			int cols = 4;
-			int totalFrames = rows * cols;
-			int frameWidth = spriteSheet.getWidth() / cols;
-			int frameHeight = spriteSheet.getHeight() / rows;
-			bombExplosionFrames = new BufferedImage[totalFrames];
-			int index = 0;
+	        
+	        int rows = 4;
+	        int cols = 4;
+	        int totalFrames = rows * cols;
 
-			for (int row = 0; row < rows; row++) {
-				for (int col = 0; col < cols; col++) {
-					bombExplosionFrames[index] = spriteSheet.getSubimage(col * frameWidth, row * frameHeight,
-							frameWidth, frameHeight);
-					index++;
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	        int frameWidth = spriteSheet.getWidth() / cols;
+	        int frameHeight = spriteSheet.getHeight() / rows;
+
+	        bombExplosionFrames = new BufferedImage[totalFrames];
+	        int index = 0;
+
+	        for (int row = 0; row < rows; row++) {
+	            for (int col = 0; col < cols; col++) {
+	                bombExplosionFrames[index] = spriteSheet.getSubimage(col * frameWidth, row * frameHeight, frameWidth,frameHeight);
+	                index++;
+	            }
+	        }
+
+	        
+	        
+
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
 	}
 
 	private void rulesPanel() {
@@ -206,7 +219,6 @@ public class SliceItController implements ActionListener {
 	}
 
 	private void gamePanel() {
-
 		JPanel gamePanel = new JPanel() {
 			
 			// List to store the active fruits
@@ -434,10 +446,15 @@ public class SliceItController implements ActionListener {
 			gamePanel();
 		}
 
-		// You can add additional logic for rulesButton and leaderButton
-		if (e.getSource() == rulesButton) {
-			rulesPanel();
-		}
+        
+        // You can add additional logic for rulesButton and leaderButton
+        if (e.getSource() == rulesButton) {
+     
+        	rulesPanel();
+        }
+        if (e.getSource() == leaderButton) {
+            leaderboardPanel();
+        }
 
 		if (e.getSource() == leaderButton) {
 			leaderboardPanel();
