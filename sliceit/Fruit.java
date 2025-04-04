@@ -1,8 +1,13 @@
 package sliceit;
 import java.awt.Graphics;
+
+
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import javax.swing.Timer;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 
 /**
@@ -18,6 +23,11 @@ public class Fruit {
 	    private float width, height;
 	    private float velocityX, velocityY;
 	    private BufferedImage image;
+	    private int sliceFrame = 0;
+	    private BufferedImage slicedImage;
+	    public boolean isSliced = false;
+	    private Timer sliceTimer;
+	    
 	    
 	    /**
 	     * Constructs a new Fruit object with the specified image, position,
@@ -29,7 +39,7 @@ public class Fruit {
 	     * @param velocityX the horizontal velocity of the fruit
 	     * @param velocityY the vertical velocity of the fruit
 	     */
-	    public Fruit(BufferedImage image, int x, int y, float velocityX, float velocityY) {
+	    public Fruit(BufferedImage image, BufferedImage slicedImage, int x, int y, float velocityX, float velocityY) {
 	        this.image = image;
 	        this.x = x;
 	        this.y = y;
@@ -38,9 +48,10 @@ public class Fruit {
 	        this.velocityY = velocityY;
 	        this.width = image.getWidth();
 	        this.height = image.getHeight();
+	        
+	        this.slicedImage = slicedImage;
+	        
 	    }
-	    
-
 
 	    /**
 	     * This method updates the fruit's position based on its current velocity and applies
@@ -49,7 +60,7 @@ public class Fruit {
 	    public void update() {
 	         x += velocityX;
 	         y += velocityY;
-	         velocityY += 0.5f;
+	         velocityY += 0.3f; // gravity application
 	    }
 	    
 	    
@@ -59,10 +70,18 @@ public class Fruit {
 	     * @param g2d the graphics context used to draw the fruit
 	     */
 	    public void draw(Graphics2D g2d) {
-  
-            g2d.drawImage(image, x,y,null);
+	        if (isSliced) {
+	            g2d.drawImage(slicedImage, x, y, null);
+	        } else {
+	            g2d.drawImage(image, x, y, null);
+	        }
+	    }
             
-        }
+	    public void slice() {
+	        if (!isSliced) {
+	            isSliced = true; // Switch to sliced image
+	        }
+	    }
        
 	    /**
 	     * Determines whether the fruit has moved off-screen based on the dimensions
@@ -76,5 +95,9 @@ public class Fruit {
             return (x + width < 0 || x - width > panelWidth || y - height > panelHeight);
         }
        
+
+public boolean contains(int mx, int my) {
+	        return mx >= x && mx <= x + width && my >= y && my <= y + height;
+	    }
 
 }
