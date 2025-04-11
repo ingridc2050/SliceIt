@@ -1,6 +1,8 @@
 package sliceit;
 
 import java.awt.Color;
+import javax.sound.sampled.*;
+
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -16,13 +18,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
@@ -43,6 +48,10 @@ public class SliceItController implements ActionListener  {
 	private BufferedImage fruitSliceFrames;
 	private int points = 0;
 	private JLabel pointLabel;
+	private String username;
+	private List<String> leaderboardData = new ArrayList<>();
+	private Clip backgroundClip;
+
 
 	public static void main(String[] args) {
 
@@ -95,6 +104,21 @@ public class SliceItController implements ActionListener  {
 		leaderButton.setBounds(150, 220, 200, 40);
 		leaderButton.addActionListener(this);
 		mainPanel.add(leaderButton);
+		
+		playBackgroundMusic("songs/Pocketful of Sunshine.wav");
+
+	}
+	
+	private void playBackgroundMusic(String filepath) {
+	    try {
+	        File audioFile = new File(filepath);
+	        AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+	        backgroundClip = AudioSystem.getClip();
+	        backgroundClip.open(audioStream);
+	        backgroundClip.loop(Clip.LOOP_CONTINUOUSLY); // loop forever
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 	}
 
 	private void loadFruitImages() {
@@ -328,6 +352,7 @@ public class SliceItController implements ActionListener  {
 	                    if (!gameOver) {
 	                        timer.stop();
 	                        JOptionPane.showMessageDialog(gameJFrame, "You won! Your score: " + points);
+	                        leaderboardData.add(username + " - " + points + " pts");
 	                        returnToMainPanel();
 	                    }
 	                }
@@ -417,6 +442,7 @@ public class SliceItController implements ActionListener  {
 						if (explosionFrame >= bombExplosionFrames.length) {
 							explosionTimer.stop();
 							JOptionPane.showMessageDialog(gameJFrame, "Game Over! You sliced a bomb!");
+							leaderboardData.add(username + " - " + points + " pts");
 							returnToMainPanel();
 						} else {
 							repaint();
@@ -472,6 +498,12 @@ public class SliceItController implements ActionListener  {
 		leaderBoardPanel = new JPanel();
 		leaderBoardPanel.setLayout(null);
 		leaderBoardPanel.setBackground(Color.pink);
+		
+		JList<String> leaderBoard = new JList<>(leaderboardData.toArray(new String[0]));
+		JScrollPane scrollPane = new JScrollPane(leaderBoard);
+		scrollPane.setBounds(150,50,200,200);
+		leaderBoardPanel.add(scrollPane);
+		
 		JButton backButton = new JButton("Back");
 		backButton.setBounds(200, 300, 100, 40);
 		backButton.addActionListener(new ActionListener() {
@@ -481,18 +513,21 @@ public class SliceItController implements ActionListener  {
 				returnToMainPanel();
 			}
 		});
-		
-
 		leaderBoardPanel.add(backButton);
+
 		gameJFrame.getContentPane().removeAll();
 		gameJFrame.getContentPane().add(leaderBoardPanel);
 		gameJFrame.revalidate();
 		gameJFrame.repaint();
+		
+		
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == gameButton) {
+			username = JOptionPane.showInputDialog(null, "Enter your username");			
+			
 			gamePanel();
 		}
 
