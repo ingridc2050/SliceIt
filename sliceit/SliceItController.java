@@ -2,16 +2,13 @@ package sliceit;
 
 import java.awt.Color;
 import javax.sound.sampled.*;
-
-import java.awt.Container;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -19,8 +16,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
-
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -44,78 +39,75 @@ import javax.swing.Timer;
  * </p>
  */
 public class SliceItController implements ActionListener {
+
 	/** The main game window. */
 	private final JFrame gameJFrame;
 	/** The main menu panel. */
 	private JPanel mainPanel;
 	/** Panel displaying game rules. */
 	private JPanel rulesPanel;
-	/** Panel where the actual game is played. */
-	private JPanel gamePanel;
 	/** Panel displaying the leaderboard. */
 	private JPanel leaderBoardPanel;
-	/** The sprite sheet image containing fruit images. */
+	/** The sprite sheet image containing fruit graphics. */
 	private BufferedImage spriteSheet;
-	/** The image representing a bomb. */
+	/** The image representing a bomb object in the game. */
 	private BufferedImage bomb;
-	/** Array holding unsliced fruit images. */
+	/** Array holding images of unsliced fruits. */
 	private BufferedImage[] unslicedFruits;
-	/** Array holding sliced fruit images. */
+	/** Array holding images of sliced fruits. */
 	private BufferedImage[] slicedFruits;
+	/** Array holding frames for bomb explosion animation. */
+	private BufferedImage[] bombExplosionFrames;
+	/** Background image used in gameplay screen. */
+	private BufferedImage backgroundImage;
 	/** Button to start the game. */
 	private JButton gameButton;
 	/** Button to show the rules panel. */
 	private JButton rulesButton;
 	/** Button to show the leaderboard panel. */
 	private JButton leaderButton;
-	/** Array holding frames of bomb explosion animation. */
-	private BufferedImage[] bombExplosionFrames;
-	/**
-	 * Not used in this snippet but reserved for additional fruit slice animation
-	 * frames.
-	 */
-	private BufferedImage fruitSliceFrames;
-	/** The current score for the game. */
+	/** Player's current score during the game. */
 	private int points = 0;
 	/** Label to display the current score. */
 	private JLabel pointLabel;
+	/** Stores the username entered by the player. */
 	private String username;
+	/** Stores leaderboard entries containing usernames and scores. */
 	private List<String> leaderboardData = new ArrayList<>();
+	/** Background music clip playing during the game. */
 	private Clip backgroundClip;
-	private int explosionX, explosionY;
+	/** X-coordinate of the bomb explosion animation. */
+	private int explosionX;
+	/** Y-coordinate of the bomb explosion animation. */
+	private int explosionY;
+	/** Flag indicating whether the explosion should be shown. */
 	private boolean showExplosion = false;
+	/** Index of the current explosion animation frame. */
 	private int explosionFrame = 0;
+	/** Timer controlling the explosion animation. */
 	private Timer explosionTimer;
-	private BufferedImage backgroundImage;
-	// Fields to handle bomb slicing.
+	/** Flag indicating whether the game is over. */
 	private boolean gameOver = false;
-	// List to store the active fruits
+	/** List containing all the fruits currently on the screen. */
 	private List<Fruit> fruits = new ArrayList<>();
-	// List to store bombs
+	/** List containing all the bombs currently on the screen. */
 	private List<Bomb> bombs = new ArrayList<>();
-	// Random generator for fruit spawn
+	/** Random number generator for spawning fruits and bombs. */
 	private Random rand = new Random();
-
-	
-	
-
-	// Fields to handle bomb slicing.
-	private boolean addPoint = false;
-	private int sliceX, sliceY;
-	private boolean showSlice = false;
-	private int sliceFrame = 0;
-	private Timer sliceTimer;
-
-	// Declare the one-minute game timer.
+	/** Timer controlling the overall game duration. */
 	private Timer gameTimer;
-	// Countdown variables to display time remaining.
+	/** Time remaining in the game (in seconds). */
 	private int timeRemaining = 60;
+	/** Label displaying the remaining time. */
 	private JLabel timeLabel;
+	/** Timer updating the countdown clock every second. */
 	private Timer countdownTimer;
 
+	/** Custom panel where the gameplay graphics are drawn. */
+	private GamePanel gamePanel;
+
 	/**
-	 * The main entry point for the SliceIt game. It schedules the creation of the
-	 * GUI on the Event Dispatch Thread (EDT).
+	 * The main entry point for the SliceIt game.
 	 *
 	 * @param args command line arguments (not used)
 	 */
@@ -131,124 +123,94 @@ public class SliceItController implements ActionListener {
 
 	/**
 	 * Constructs a new SliceItController object.
-	 * <p>
+	 *
 	 * This constructor initializes the main JFrame, sets up the primary menu panel,
-	 * loads necessary images, and creates the navigation buttons for starting the
-	 * game, viewing rules, and showing the leaderboard.
-	 * </p>
+	 * loads necessary images, and creates the navigation buttons.
 	 */
 	public SliceItController() {
-		class BackgroundPanel extends JPanel {
-			private BufferedImage backgroundImage;
-
-			public BackgroundPanel(String imagePath) {
-				try {
-					backgroundImage = ImageIO.read(new File(imagePath));
-				} catch (IOException e) {
-					e.printStackTrace(); // FIX HERE FOR ERROR
-				}
-				setLayout(null); // retain your layout preference
-			}
-
-			@Override
-			protected void paintComponent(Graphics g) {
-				super.paintComponent(g);
-				if (backgroundImage != null) {
-					g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-				}
-			}
-		}
-
 		gameJFrame = new JFrame();
 		gameJFrame.setSize(500, 500);
 		gameJFrame.setLocation(50, 50);
 		gameJFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+		// Create a main panel that shows a welcome background.
 		mainPanel = new BackgroundPanel("images/welcomee.png");
 
+		// Add main panel to the frame (only once)
 		gameJFrame.getContentPane().add(mainPanel);
 
+		// Load images needed for the game.
 		loadSlicedFruitImages();
-
 		loadBombImage();
 		loadBombExplosionImages();
 
-		gameJFrame.setVisible(true);
-		gameJFrame.getContentPane().add(mainPanel);
+		// Set up the main buttons with transparent backgrounds.
 
-		gameJFrame.setVisible(true);
-
-		ImageIcon playIcon = new ImageIcon("images/playyy.png");
+		ImageIcon playIcon = new ImageIcon("images/playButton.png");
 		gameButton = new JButton(playIcon);
-		gameButton.setBounds(150, 200, 200, 37);
-		gameButton.setBorderPainted(false);
-		gameButton.setContentAreaFilled(false);
-		gameButton.setFocusPainted(false);
-		gameButton.setOpaque(false);
-		gameButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		gameButton.setBounds(185, 200, 140, 37);
 		gameButton.addActionListener(this);
 		mainPanel.add(gameButton);
 
-		ImageIcon ruleIcon = new ImageIcon("images/rules.png");
+		ImageIcon ruleIcon = new ImageIcon("images/rulesButton.png");
 		rulesButton = new JButton(ruleIcon);
-		rulesButton.setBounds(150, 240, 200, 37);
-		rulesButton.setBorderPainted(false);
-		rulesButton.setContentAreaFilled(false);
-		rulesButton.setFocusPainted(false);
-		rulesButton.setOpaque(false);
-		rulesButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		rulesButton.setBounds(185, 240, 140, 37);
 		rulesButton.addActionListener(this);
 		mainPanel.add(rulesButton);
 
-		ImageIcon leadIcon = new ImageIcon("images/leaderboardbutton.png");
+		ImageIcon leadIcon = new ImageIcon("images/leaderBoardButton.png");
 		leaderButton = new JButton(leadIcon);
-		leaderButton.setBounds(150, 280, 200, 37);
-		leaderButton.setBorderPainted(false);
-		leaderButton.setContentAreaFilled(false);
-		leaderButton.setFocusPainted(false);
-		leaderButton.setOpaque(false);
-		leaderButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		leaderButton.setBounds(176, 280, 158, 37);
 		leaderButton.addActionListener(this);
 		mainPanel.add(leaderButton);
 
 		playBackgroundMusic("songs/Pocketful of Sunshine.wav");
 
+		gameJFrame.setVisible(true);
 	}
 
+	/**
+	 * A helper panel that draws a background image.
+	 */
+	class BackgroundPanel extends JPanel {
+		private BufferedImage bgImage;
+
+		public BackgroundPanel(String imagePath) {
+			// Load background image (inlined try-catch; no extra block)
+			try {
+				bgImage = ImageIO.read(new File(imagePath));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			setLayout(null);
+		}
+
+		@Override
+		protected void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			if (bgImage != null) {
+				g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+			}
+		}
+	}
+
+	/**
+	 * Plays the specified background music file.
+	 */
 	private void playBackgroundMusic(String filepath) {
 		try {
 			File audioFile = new File(filepath);
 			AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
 			backgroundClip = AudioSystem.getClip();
 			backgroundClip.open(audioStream);
-			backgroundClip.loop(Clip.LOOP_CONTINUOUSLY); // loop forever
+			backgroundClip.loop(Clip.LOOP_CONTINUOUSLY);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void loadFruitImages() {
-
-		try {
-			spriteSheet = ImageIO.read(new File("images/fruits.png"));
-			int fruitWidth = 101;
-			int fruitHeight = 85;
-			int rows = 7;
-			unslicedFruits = new BufferedImage[rows]; // Initialize the array
-			for (int i = 0; i < rows; i++) {
-				unslicedFruits[i] = spriteSheet.getSubimage(0, i * fruitHeight, fruitWidth, fruitHeight);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 	/**
-	 * Loads both unsliced and sliced fruit images from the sprite sheet.
-	 * <p>
-	 * This method extracts two sets of images from "images/fruits.png". It uses one
-	 * section for unsliced fruits and another for their sliced counterparts.
-	 * </p>
+	 * Loads fruit images (both unsliced and sliced) from a sprite sheet.
 	 */
 	private void loadSlicedFruitImages() {
 		try {
@@ -261,9 +223,8 @@ public class SliceItController implements ActionListener {
 			slicedFruits = new BufferedImage[rows];
 
 			for (int i = 0; i < rows; i++) {
-				unslicedFruits[i] = spriteSheet.getSubimage(0, i * fruitHeight, fruitWidth, fruitHeight); // Whole fruit
-				slicedFruits[i] = spriteSheet.getSubimage(105, i * fruitHeight, fruitWidth + 10, fruitHeight); // Sliced
-																												// fruit
+				unslicedFruits[i] = spriteSheet.getSubimage(0, i * fruitHeight, fruitWidth, fruitHeight);
+				slicedFruits[i] = spriteSheet.getSubimage(105, i * fruitHeight, fruitWidth + 10, fruitHeight);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -271,10 +232,9 @@ public class SliceItController implements ActionListener {
 	}
 
 	/**
-	 * Loads the bomb image from a file.
+	 * Loads the bomb image.
 	 */
 	private void loadBombImage() {
-
 		try {
 			bomb = ImageIO.read(new File("images/bombimg.png"));
 		} catch (IOException e) {
@@ -283,11 +243,7 @@ public class SliceItController implements ActionListener {
 	}
 
 	/**
-	 * Loads the bomb explosion frames from a sprite sheet.
-	 * <p>
-	 * This method reads the "images/bombSprites.png" file and splits it into a grid
-	 * of images (frames) which form an animation sequence.
-	 * </p>
+	 * Loads the bomb explosion images from a sprite sheet.
 	 */
 	private void loadBombExplosionImages() {
 		try {
@@ -302,7 +258,6 @@ public class SliceItController implements ActionListener {
 
 			bombExplosionFrames = new BufferedImage[totalFrames];
 			int index = 0;
-
 			for (int row = 0; row < rows; row++) {
 				for (int col = 0; col < cols; col++) {
 					bombExplosionFrames[index] = spriteSheet.getSubimage(col * frameWidth, row * frameHeight,
@@ -310,236 +265,188 @@ public class SliceItController implements ActionListener {
 					index++;
 				}
 			}
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 	/**
-	 * Initializes and displays the rules panel.
-	 * <p>
-	 * This panel explains the game rules and includes a back button for returning
-	 * to the main menu.
-	 * </p>
+	 * Displays the rules panel.
 	 */
 	private void rulesPanel() {
-
-		rulesPanel = new JPanel();
+		rulesPanel = new BackgroundPanel("images/rulesBackground.png");
 		rulesPanel.setLayout(null);
-		rulesPanel.setBackground(Color.pink);
 
-		JLabel rulesLabel = new JLabel("<html>Game Rules:<br/>"
-				+ "1. Players need to slice as many fruits as they can while avoiding bombs.<br/>" +
+		// Back button to return to the main panel.
+		JButton backButton = new JButton("BACK");
+		backButton.setBounds(380, 400, 100, 40);
+		backButton.setBackground(Color.WHITE); // You can use any predefined color or create your own
 
-				"2. The game is lost if the player slices a bomb.</html>");
+		backButton.setForeground(new Color(255, 105, 180));
 
-		rulesLabel.setBounds(50, 50, 400, 200);
-		rulesPanel.add(rulesLabel);
-
-		// Back button to return to the main menu
-		JButton backButton = new JButton("Back");
-		backButton.setBounds(200, 300, 100, 40);
-		backButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				returnToMainPanel();
-			}
-		});
-
+		backButton.addActionListener(e -> returnToMainPanel());
 		rulesPanel.add(backButton);
+
 		gameJFrame.getContentPane().removeAll();
 		gameJFrame.getContentPane().add(rulesPanel);
 		gameJFrame.revalidate();
 		gameJFrame.repaint();
-
 	}
 
 	/**
 	 * Returns to the main menu panel.
-	 * <p>
-	 * This method removes all components from the content pane of the frame and
-	 * adds the main panel back.
-	 * </p>
 	 */
 	private void returnToMainPanel() {
-
 		gameJFrame.getContentPane().removeAll();
 		gameJFrame.getContentPane().add(mainPanel);
 		gameJFrame.revalidate();
 		gameJFrame.repaint();
-
 	}
 
 	/**
-	 * Initializes and displays the game panel where the gameplay takes place.
-	 * <p>
-	 * This method defines an anonymous inner {@code JPanel} subclass that handles
-	 * fruit and bomb spawning, game animations, mouse interactions, scoring, and
-	 * countdown timers.
-	 * </p>
+	 * Initializes and displays the game panel where gameplay occurs.
 	 */
 	private void gamePanel() {
-		JPanel gamePanel = new JPanel() {
+		// Create a new instance of our custom GamePanel.
+		gamePanel = new GamePanel();
 
-			
-
-			// Timer to update game logic every 20ms.
-			private Timer timer = new Timer(20, new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					// Spawn a new fruit occasionally.
-					if (rand.nextDouble() < 0.05) {
-						int panelWidth = getWidth();
-						int fruitIndex = rand.nextInt(unslicedFruits.length);
-						BufferedImage img = unslicedFruits[fruitIndex];
-						int x = rand.nextInt(Math.max(panelWidth - img.getWidth(), 1));
-						int y = getHeight() - img.getHeight();
-						float velocityY = -(float) (rand.nextDouble() * 5 + 10);
-						float velocityX = (float) (rand.nextDouble() * 4 - 2);
-						BufferedImage slicedImg = slicedFruits[fruitIndex]; // use matching slice
-						Fruit fruit = new Fruit(img, slicedImg, x, y, velocityX, velocityY);
-
-						fruits.add(fruit);
-
-					}
-
-					// Update each fruit's position.
-					for (int i = fruits.size() - 1; i >= 0; i--) {
-						Fruit f = fruits.get(i);
-						f.update();
-						if (f.isOffScreen(getWidth(), getHeight())) {
-							fruits.remove(i);
-						}
-					}
-
-					// Update each bomb's position.
-					Iterator<Bomb> bombIterator = bombs.iterator();
-					while (bombIterator.hasNext()) {
-						Bomb b = bombIterator.next();
-						b.update();
-						if (b.getY() > getHeight()) {
-							bombIterator.remove();
-						}
-					}
-
-					// Spawn bombs at a lower probability than fruits.
-					if (rand.nextDouble() < 0.02) {
-						int panelWidth = getWidth();
-						if (bomb != null) {
-							int x = rand.nextInt(Math.max(panelWidth - bomb.getWidth(), 1));
-							int y = getHeight() - bomb.getHeight();
-							float velocityY = -(float) (rand.nextDouble() * 5 + 10);
-							float velocityX = (float) (rand.nextDouble() * 4 - 2);
-							Bomb newBomb = new Bomb(bomb, x, y, velocityX, velocityY);
-							bombs.add(newBomb);
-						} else {
-							System.err.println("Error: Bomb image is not loaded.");
-						}
-					}
-					repaint();
+		// Start a timer that updates the game logic.
+		Timer timer = new Timer(20, new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// Occasionally spawn a new fruit.
+				if (rand.nextDouble() < 0.05) {
+					int panelWidth = gamePanel.getWidth();
+					int fruitIndex = rand.nextInt(unslicedFruits.length);
+					BufferedImage img = unslicedFruits[fruitIndex];
+					int x = rand.nextInt(Math.max(panelWidth - img.getWidth(), 1));
+					int y = gamePanel.getHeight() - img.getHeight();
+					float velocityY = -(float) (rand.nextDouble() * 5 + 10);
+					float velocityX = (float) (rand.nextDouble() * 4 - 2);
+					BufferedImage slicedImg = slicedFruits[fruitIndex];
+					Fruit fruit = new Fruit(img, slicedImg, x, y, velocityX, velocityY);
+					fruits.add(fruit);
 				}
-			});
 
-			// Instance initializer: load background, start timers, and add mouse listener.
-			{
-				try {
-					backgroundImage = ImageIO.read(new File("images/better_background.png"));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				timer.start();
-
-				gameTimer = new Timer(60000, new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						if (!gameOver) {
-							timer.stop();
-							JOptionPane.showMessageDialog(gameJFrame, "You won! Your score: " + points);
-							leaderboardData.add(username + " - " + points + " pts");
-							returnToMainPanel();
-						}
+				// Update fruit positions and remove off-screen fruits.
+				for (int i = fruits.size() - 1; i >= 0; i--) {
+					Fruit f = fruits.get(i);
+					f.update();
+					if (f.isOffScreen(gamePanel.getWidth(), gamePanel.getHeight())) {
+						fruits.remove(i);
 					}
-				});
-				gameTimer.setRepeats(false);
-				gameTimer.start();
+				}
 
-				timeLabel = new JLabel("Time: " + timeRemaining);
-				timeLabel.setForeground(Color.WHITE);
-				timeLabel.setBounds(350, 20, 100, 30);
-				add(timeLabel);
-				// Countdown timer that updates every second.
-				countdownTimer = new Timer(1000, new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						timeRemaining--;
-						timeLabel.setText("Time: " + timeRemaining);
-						if (timeRemaining <= 0) {
+				// Update bombs.
+				Iterator<Bomb> bombIterator = bombs.iterator();
+				while (bombIterator.hasNext()) {
+					Bomb b = bombIterator.next();
+					b.update();
+					if (b.getY() > gamePanel.getHeight()) {
+						bombIterator.remove();
+					}
+				}
+
+				// Occasionally spawn a new bomb.
+				if (rand.nextDouble() < 0.02 && bomb != null) {
+					int panelWidth = gamePanel.getWidth();
+					int x = rand.nextInt(Math.max(panelWidth - bomb.getWidth(), 1));
+					int y = gamePanel.getHeight() - bomb.getHeight();
+					float velocityY = -(float) (rand.nextDouble() * 5 + 10);
+					float velocityX = (float) (rand.nextDouble() * 4 - 2);
+					Bomb newBomb = new Bomb(bomb, x, y, velocityX, velocityY);
+					bombs.add(newBomb);
+				}
+
+				// Repaint the game panel.
+				gamePanel.repaint();
+			}
+		});
+		timer.start();
+
+		// Game timer (one minute duration).
+		gameTimer = new Timer(60000, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (!gameOver) {
+					timer.stop();
+					JOptionPane.showMessageDialog(gameJFrame, "You won! Your score: " + points);
+					leaderboardData.add(username + " - " + points + " pts");
+					returnToMainPanel();
+				}
+			}
+		});
+		gameTimer.setRepeats(false);
+		gameTimer.start();
+
+		// Time remaining label and countdown timer.
+		timeLabel = new JLabel("Time: " + timeRemaining);
+		timeLabel.setForeground(Color.WHITE);
+		timeLabel.setBounds(350, 20, 100, 30);
+		gamePanel.add(timeLabel);
+		countdownTimer = new Timer(1000, new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				timeRemaining--;
+				timeLabel.setText("Time: " + timeRemaining);
+				if (timeRemaining <= 0) {
+					countdownTimer.stop();
+				}
+			}
+		});
+		countdownTimer.start();
+
+		// Add mouse motion listener to detect dragging (slicing).
+		gamePanel.addMouseMotionListener(new MouseAdapter() {
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				if (gameOver) {
+					return;
+				}
+				int mouseX = e.getX();
+				int mouseY = e.getY();
+
+				// Check for fruit slicing.
+				for (Fruit f : fruits) {
+					if (!f.getIsSliced() && f.contains(mouseX, mouseY)) {
+						f.slice();
+						points += 10;
+						pointLabel.setText("Score: " + points);
+					}
+				}
+
+				// Check for bomb slicing.
+				for (Iterator<Bomb> it = bombs.iterator(); it.hasNext();) {
+					Bomb b = it.next();
+					int bombLeft = b.getX();
+					int bombRight = b.getX() + b.getImage().getWidth(null);
+					int bombTop = b.getY();
+					int bombBottom = b.getY() + b.getImage().getHeight(null);
+					if (mouseX >= bombLeft && mouseX <= bombRight && mouseY >= bombTop && mouseY <= bombBottom) {
+						explosionX = b.getX() + (b.getImage().getWidth(null) - bombExplosionFrames[0].getWidth()) / 2;
+						explosionY = b.getY() + (b.getImage().getHeight(null) - bombExplosionFrames[0].getHeight()) / 2;
+						it.remove();
+						gameOver = true;
+						timer.stop();
+						if (gameTimer != null) {
+							gameTimer.stop();
+						}
+						if (countdownTimer != null) {
 							countdownTimer.stop();
 						}
+						startExplosionAnimation();
+						points = 0;
+						break;
 					}
-				});
-				countdownTimer.start();
+				}
+			}
+		});
 
-				// Add a MouseMotionListener using an anonymous inner class.
-				addMouseMotionListener(new java.awt.event.MouseAdapter() {
-					@Override
-					public void mouseDragged(MouseEvent e) {
-						if (gameOver) {
-							return;
-						}
-						int mouseX = e.getX();
-						int mouseY = e.getY();
-
-						for (Fruit f : fruits) {
-							if (!f.getIsSliced() && f.contains(mouseX, mouseY)) {
-								f.slice();
-								points += 10;
-								pointLabel.setText("Score: " + points);
-							}
-						}
-
-						for (Bomb b : bombs) {
-							int bombLeft = b.getX();
-							int bombRight = b.getX() + b.getImage().getWidth(null);
-							int bombTop = b.getY();
-							int bombBottom = b.getY() + b.getImage().getHeight(null);
-
-							// Check if mouse is within bomb bounds
-							if (mouseX >= bombLeft && mouseX <= bombRight && mouseY >= bombTop
-									&& mouseY <= bombBottom) {
-								explosionX = b.getX()
-										+ (b.getImage().getWidth(null) - bombExplosionFrames[0].getWidth()) / 2;
-								explosionY = b.getY()
-										+ (b.getImage().getHeight(null) - bombExplosionFrames[0].getHeight()) / 2;
-
-								// Remove the bomb so it doesn't keep drawing
-								bombs.remove(b);
-								gameOver = true;
-								timer.stop(); // Stop game updates
-
-								if (gameTimer != null) {
-									gameTimer.stop();
-								}
-								if (countdownTimer != null) {
-									countdownTimer.stop();
-								}
-								startExplosionAnimation();
-								points = 0;
-								break;
-							}
-						}
-					}
-				});
-
-		gamePanel.setLayout(null);
-		gamePanel.setBackground(Color.pink);
-		gamePanel.setPreferredSize(new Dimension(500, 500));
-
+		// Score label.
 		pointLabel = new JLabel("Score: " + points);
 		pointLabel.setForeground(Color.WHITE);
 		pointLabel.setBounds(20, 20, 100, 30);
 		gamePanel.add(pointLabel);
 
+		// Switch the frame content to the game panel.
 		gameJFrame.getContentPane().removeAll();
 		gameJFrame.getContentPane().add(gamePanel);
 		gameJFrame.pack();
@@ -548,18 +455,48 @@ public class SliceItController implements ActionListener {
 	}
 
 	/**
+	 * Custom GamePanel class that handles all game drawing.
+	 */
+	private class GamePanel extends JPanel {
+		public GamePanel() {
+			setLayout(null);
+			setBackground(Color.pink);
+			setPreferredSize(new Dimension(500, 500));
+			// Load background image (inlined try-catch)
+			try {
+				backgroundImage = ImageIO.read(new File("images/playBackground.png"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		@Override
+		protected void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			if (backgroundImage != null) {
+				g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+			}
+
+			Graphics2D g2d = (Graphics2D) g;
+			for (Fruit f : fruits) {
+				f.draw(g2d);
+			}
+			for (Bomb b : bombs) {
+				g2d.drawImage(b.getImage(), b.getX(), b.getY(), null);
+			}
+			if (showExplosion && bombExplosionFrames != null && explosionFrame < bombExplosionFrames.length) {
+				g2d.drawImage(bombExplosionFrames[explosionFrame], explosionX, explosionY, null);
+			}
+		}
+	}
+
+	/**
 	 * Starts the bomb explosion animation.
-	 * 
-	 * This method sets the explosion flag and initiates a timer that updates the
-	 * explosion frame at regular intervals. Once the animation is complete, the
-	 * game is declared over and the user is returned to the main menu.
-	 * 
 	 */
 	private void startExplosionAnimation() {
 		showExplosion = true;
 		explosionFrame = 0;
 
-		// Set up a timer to update the explosion frame every 10ms
 		explosionTimer = new Timer(10, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -570,112 +507,61 @@ public class SliceItController implements ActionListener {
 					leaderboardData.add(username + " - " + points + " pts");
 					returnToMainPanel();
 				} else {
-					repaint();
+					gamePanel.repaint();
 				}
 			}
 		});
 		explosionTimer.start();
 	}
-	
+
 	/**
-	 * Overrides the paintComponent method to render the game components.
-	 * <p>
-	 * This method draws the background, fruits, bombs, and explosion animation (if
-	 * active).
-	 * </p>
-	 *
-	 * @param g is the Graphics object to protect
-	 */
-	protected void paintComponent(Graphics g) {
-		paintComponent(g);
-		if (backgroundImage != null) {
-			g.drawImage(backgroundImage, 0, 0, gamePanel.getWidth(), gamePanel.getHeight(), this);
-		}
-
-		Graphics2D g2d = (Graphics2D) g;
-		for (Fruit f : fruits) {
-			f.draw(g2d);
-		}
-
-		for (Bomb b : bombs) {
-			g2d.drawImage(b.getImage(), b.getX(), b.getY(), null);
-		}
-
-		if (showExplosion && bombExplosionFrames != null && explosionFrame < bombExplosionFrames.length) {
-			g2d.drawImage(bombExplosionFrames[explosionFrame], explosionX, explosionY, null);
-		}
-	}
-	
-	/**
-	 * Initializes and displays the leaderboard panel.
-	 * <p>
-	 * This panel currently contains a back button for returning to the main menu.
-	 * </p>
+	 * Displays the leaderboard panel.
 	 */
 	private void leaderboardPanel() {
-
-		leaderBoardPanel = new JPanel();
+		leaderBoardPanel = new BackgroundPanel("images/leaderBoardbackground.png");
 		leaderBoardPanel.setLayout(null);
 		leaderBoardPanel.setBackground(Color.pink);
 
 		JList<String> leaderBoard = new JList<>(leaderboardData.toArray(new String[0]));
 		JScrollPane scrollPane = new JScrollPane(leaderBoard);
-		scrollPane.setBounds(150, 50, 200, 200);
+		scrollPane.setBounds(135, 145, 210, 180);
 		leaderBoardPanel.add(scrollPane);
 
-		JButton backButton = new JButton("Back");
-		backButton.setBounds(200, 300, 100, 40);
-		backButton.addActionListener(new ActionListener() {
+		JButton backButton = new JButton("BACK");
+		backButton.setBounds(185, 350, 130, 40);
+		backButton.addActionListener(e -> returnToMainPanel());
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				returnToMainPanel();
-			}
-		});
+		backButton.setBackground(Color.WHITE); // You can use any predefined color or create your own
+		backButton.setForeground(new Color(255, 105, 180)); // Neon pink vibe
+
 		leaderBoardPanel.add(backButton);
 
 		gameJFrame.getContentPane().removeAll();
 		gameJFrame.getContentPane().add(leaderBoardPanel);
 		gameJFrame.revalidate();
 		gameJFrame.repaint();
-
 	}
 
 	/**
-	 * Invoked when an action occurs.
-	 * <p>
-	 * Handles button click events from the main menu. Depending on the source, it
-	 * transitions to the game panel, rules panel, or leaderboard panel.
-	 * </p>
-	 *
-	 * @param e the event to be processed
+	 * Handles button click events from the main menu.
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == gameButton) {
+			// Prompt for username until a non-blank value is entered.
 			while (username == null || username.trim().isEmpty()) {
 				username = JOptionPane.showInputDialog(null, "Enter your username");
 				if (username == null) {
-	                JOptionPane.showMessageDialog(gameJFrame, "You must enter a username to play!");
+					JOptionPane.showMessageDialog(gameJFrame, "You must enter a username to play!");
 				} else if (username.trim().isEmpty()) {
-	                JOptionPane.showMessageDialog(gameJFrame, "Username can't be blank!");
+					JOptionPane.showMessageDialog(gameJFrame, "Username can't be blank!");
+				}
 			}
-
-			gamePanel();
-		}
-
-		// You can add additional logic for rulesButton and leaderButton
-		if (e.getSource() == rulesButton) {
-
+			gamePanel(); // launch the game panel
+		} else if (e.getSource() == rulesButton) {
 			rulesPanel();
-		}
-		if (e.getSource() == leaderButton) {
-			leaderboardPanel();
-		}
-
-		if (e.getSource() == leaderButton) {
+		} else if (e.getSource() == leaderButton) {
 			leaderboardPanel();
 		}
 	}
-	}
-		}
+}
