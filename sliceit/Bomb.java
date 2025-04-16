@@ -14,8 +14,6 @@ import javax.imageio.ImageIO;
 public class Bomb {
 	/** The x and y coordinates of the bomb */
 	private int x, y;
-	/** The width and height of the bomb */
-	private float width, height;
 	/** The horizontal and vertical velocity of the bomb */
 	private float velocityX, velocityY;
 	/** The actual bomb */
@@ -36,11 +34,8 @@ public class Bomb {
 		this.image = image;
 		this.x = x;
 		this.y = y;
-
 		this.velocityX = velocityX;
 		this.velocityY = velocityY;
-		this.width = image.getWidth();
-		this.height = image.getHeight();
 	}
 
 	/**
@@ -60,8 +55,11 @@ public class Bomb {
 	 * to the bomb.
 	 */
 	public void update() {
+		//move bomb horizontally
 		x += velocityX;
+		//move bomb vertically
 		y += velocityY;
+		//apply gravity
 		velocityY += 0.5f;
 	}
 
@@ -85,6 +83,7 @@ public class Bomb {
 	 *         otherwise.
 	 */
 	public boolean isHit(int clickX, int clickY) {
+		//Is click in bounds of the bomb?
 		return clickX >= x && clickX <= x + image.getWidth() && clickY >= y && clickY <= y + image.getHeight();
 	}
 
@@ -119,17 +118,35 @@ public class Bomb {
 	 * Testing for the Bomb Class
 	 */
 	public static void main(String[] args) {
+		boolean testBool = true;
 		// Create a Bomb object
 		BufferedImage bomb = new BufferedImage(50, 50, BufferedImage.TYPE_INT_ARGB);
 
 		Bomb testBomb = new Bomb(bomb, 100, 150, 5.0f, -10.0f);
 
-		// Test Bomb object by printing its properties
-		System.out.println("Bomb X: " + testBomb.getX()); // Should be 100
-		System.out.println("Bomb Y: " + testBomb.getY()); // Should be 150
-		System.out.println("Bomb Width: " + testBomb.getImage().getWidth()); // Should be 50
-		System.out.println("Bomb Height: " + testBomb.getImage().getHeight()); // Should be 50
-		System.out.println("Is Hit at (110, 160): " + testBomb.isHit(110, 160)); // Should be true
-		System.out.println("Is Hit at (200, 200): " + testBomb.isHit(200, 200)); // Should be false
+		// Test Bomb object by checking it's properties
+		if (testBomb.getX() != 100) {
+			testBool = false;
+		}
+		if (testBomb.getY() != 150) {
+			testBool = false;
+		}
+		if (testBomb.getImage().getWidth() != 50) {
+			testBool = false;
+		}
+		if (testBomb.getImage().getHeight() != 50) {
+			testBool = false;
+		}
+		if (testBomb.isHit(110, 160) != true) {
+			testBool = false;
+		}
+		if (testBomb.isHit(200, 200) != false) {
+			testBool = false;
+		}
+		if (testBool) {
+			System.out.println("All Tests Passed!");
+		} else {
+			System.out.println("Error in code.");
+		}
 	}
 }
