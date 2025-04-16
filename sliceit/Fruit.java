@@ -1,13 +1,8 @@
 package sliceit;
 
-import java.awt.Graphics;
-
 import java.awt.Graphics2D;
-import java.awt.Image;
+
 import java.awt.image.BufferedImage;
-import javax.swing.Timer;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * The Fruit class represents a fruit object in the game that moves with a given
