@@ -48,8 +48,6 @@ public class SliceItController implements ActionListener {
 	private JPanel rulesPanel;
 	/** Panel displaying the leaderboard. */
 	private JPanel leaderBoardPanel;
-	/** The sprite sheet image containing fruit graphics. */
-	private BufferedImage spriteSheet;
 	/** The image representing a bomb object in the game. */
 	private BufferedImage bomb;
 	/** Array holding images of unsliced fruits. */
@@ -102,7 +100,6 @@ public class SliceItController implements ActionListener {
 	private JLabel timeLabel;
 	/** Timer updating the countdown clock every second. */
 	private Timer countdownTimer;
-
 	/** Custom panel where the gameplay graphics are drawn. */
 	private GamePanel gamePanel;
 
@@ -112,11 +109,9 @@ public class SliceItController implements ActionListener {
 	 * @param args command line arguments (not used)
 	 */
 	public static void main(String[] args) {
-
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				new SliceItController();
-
 			}
 		});
 	}
@@ -128,6 +123,7 @@ public class SliceItController implements ActionListener {
 	 * loads necessary images, and creates the navigation buttons.
 	 */
 	public SliceItController() {
+		//create your frame
 		gameJFrame = new JFrame();
 		gameJFrame.setSize(500, 500);
 		gameJFrame.setLocation(50, 50);
@@ -146,24 +142,33 @@ public class SliceItController implements ActionListener {
 
 		// Set up the main buttons with transparent backgrounds.
 
+		//play button
 		ImageIcon playIcon = new ImageIcon("images/playButton.png");
 		gameButton = new JButton(playIcon);
 		gameButton.setBounds(185, 200, 140, 37);
 		gameButton.addActionListener(this);
 		mainPanel.add(gameButton);
 
+		//rule button
 		ImageIcon ruleIcon = new ImageIcon("images/rulesButton.png");
 		rulesButton = new JButton(ruleIcon);
 		rulesButton.setBounds(185, 240, 140, 37);
 		rulesButton.addActionListener(this);
 		mainPanel.add(rulesButton);
 
+		//leaderboard button
 		ImageIcon leadIcon = new ImageIcon("images/leaderBoardButton.png");
 		leaderButton = new JButton(leadIcon);
 		leaderButton.setBounds(176, 280, 158, 37);
 		leaderButton.addActionListener(this);
 		mainPanel.add(leaderButton);
 
+		/**
+		 * Background Music Credit:
+		 * "Pocketful of Sunshine" by Natasha Bedingfield
+		 * © 2008 Sony Music Entertainment / Epic Records
+		 * This song is used for educational/non-commercial purposes only.
+		 */
 		playBackgroundMusic("songs/Pocketful of Sunshine.wav");
 
 		gameJFrame.setVisible(true);
@@ -173,10 +178,11 @@ public class SliceItController implements ActionListener {
 	 * A helper panel that draws a background image.
 	 */
 	class BackgroundPanel extends JPanel {
+		/** Background image for background of any window*/
 		private BufferedImage bgImage;
 
 		public BackgroundPanel(String imagePath) {
-			// Load background image (inlined try-catch; no extra block)
+			// Load background image 
 			try {
 				bgImage = ImageIO.read(new File(imagePath));
 			} catch (IOException e) {
@@ -199,10 +205,12 @@ public class SliceItController implements ActionListener {
 	 */
 	private void playBackgroundMusic(String filepath) {
 		try {
+			//load the file and grab the clip from the filepath
 			File audioFile = new File(filepath);
 			AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
 			backgroundClip = AudioSystem.getClip();
 			backgroundClip.open(audioStream);
+			//makes sure the song is always playing
 			backgroundClip.loop(Clip.LOOP_CONTINUOUSLY);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -214,6 +222,7 @@ public class SliceItController implements ActionListener {
 	 */
 	private void loadSlicedFruitImages() {
 		try {
+			//sheet for sliced fruits
 			BufferedImage spriteSheet = ImageIO.read(new File("images/fruits.png"));
 			int fruitWidth = 101;
 			int fruitHeight = 85;
@@ -222,6 +231,7 @@ public class SliceItController implements ActionListener {
 			unslicedFruits = new BufferedImage[rows];
 			slicedFruits = new BufferedImage[rows];
 
+			//grab the image based on what fruit is sliced
 			for (int i = 0; i < rows; i++) {
 				unslicedFruits[i] = spriteSheet.getSubimage(0, i * fruitHeight, fruitWidth, fruitHeight);
 				slicedFruits[i] = spriteSheet.getSubimage(105, i * fruitHeight, fruitWidth + 10, fruitHeight);
@@ -247,8 +257,8 @@ public class SliceItController implements ActionListener {
 	 */
 	private void loadBombExplosionImages() {
 		try {
+			//sheet for bomb explosion
 			BufferedImage spriteSheet = ImageIO.read(new File("images/bombSprites.png"));
-
 			int rows = 4;
 			int cols = 4;
 			int totalFrames = rows * cols;
@@ -258,6 +268,7 @@ public class SliceItController implements ActionListener {
 
 			bombExplosionFrames = new BufferedImage[totalFrames];
 			int index = 0;
+			//gets image based on what frame it is and displays it on screen
 			for (int row = 0; row < rows; row++) {
 				for (int col = 0; col < cols; col++) {
 					bombExplosionFrames[index] = spriteSheet.getSubimage(col * frameWidth, row * frameHeight,
@@ -280,13 +291,14 @@ public class SliceItController implements ActionListener {
 		// Back button to return to the main panel.
 		JButton backButton = new JButton("BACK");
 		backButton.setBounds(380, 400, 100, 40);
-		backButton.setBackground(Color.WHITE); // You can use any predefined color or create your own
-
+		backButton.setBackground(Color.WHITE); 
 		backButton.setForeground(new Color(255, 105, 180));
 
+		//when you hit the back button you will go back to the main menu
 		backButton.addActionListener(e -> returnToMainPanel());
 		rulesPanel.add(backButton);
 
+		//make main menu pop up
 		gameJFrame.getContentPane().removeAll();
 		gameJFrame.getContentPane().add(rulesPanel);
 		gameJFrame.revalidate();
@@ -327,20 +339,22 @@ public class SliceItController implements ActionListener {
 					fruits.add(fruit);
 				}
 
-				// Update fruit positions and remove off-screen fruits.
+				// Update fruit positions
 				for (int i = fruits.size() - 1; i >= 0; i--) {
 					Fruit f = fruits.get(i);
 					f.update();
+					//remove off-screen fruits
 					if (f.isOffScreen(gamePanel.getWidth(), gamePanel.getHeight())) {
 						fruits.remove(i);
 					}
 				}
 
-				// Update bombs.
+				// Go through bombs
 				Iterator<Bomb> bombIterator = bombs.iterator();
 				while (bombIterator.hasNext()) {
 					Bomb b = bombIterator.next();
 					b.update();
+					//remove when off screen
 					if (b.getY() > gamePanel.getHeight()) {
 						bombIterator.remove();
 					}
@@ -356,7 +370,6 @@ public class SliceItController implements ActionListener {
 					Bomb newBomb = new Bomb(bomb, x, y, velocityX, velocityY);
 					bombs.add(newBomb);
 				}
-
 				// Repaint the game panel.
 				gamePanel.repaint();
 			}
@@ -367,8 +380,10 @@ public class SliceItController implements ActionListener {
 		gameTimer = new Timer(60000, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				//stop time if game is over
 				if (!gameOver) {
 					timer.stop();
+					//give player their points and add to leaderboard
 					JOptionPane.showMessageDialog(gameJFrame, "You won! Your score: " + points);
 					leaderboardData.add(username + " - " + points + " pts");
 					returnToMainPanel();
@@ -401,13 +416,15 @@ public class SliceItController implements ActionListener {
 				if (gameOver) {
 					return;
 				}
+				//variables for coordinates of mouse clicking
 				int mouseX = e.getX();
 				int mouseY = e.getY();
 
-				// Check for fruit slicing.
+				// Check if held down mouse is in same coordinate as fruit
 				for (Fruit f : fruits) {
 					if (!f.getIsSliced() && f.contains(mouseX, mouseY)) {
 						f.slice();
+						//if so add points
 						points += 10;
 						pointLabel.setText("Score: " + points);
 					}
@@ -416,10 +433,12 @@ public class SliceItController implements ActionListener {
 				// Check for bomb slicing.
 				for (Iterator<Bomb> it = bombs.iterator(); it.hasNext();) {
 					Bomb b = it.next();
+					// coordinates of bomb
 					int bombLeft = b.getX();
 					int bombRight = b.getX() + b.getImage().getWidth(null);
 					int bombTop = b.getY();
 					int bombBottom = b.getY() + b.getImage().getHeight(null);
+					//check if mouse has hit the bomb
 					if (mouseX >= bombLeft && mouseX <= bombRight && mouseY >= bombTop && mouseY <= bombBottom) {
 						explosionX = b.getX() + (b.getImage().getWidth(null) - bombExplosionFrames[0].getWidth()) / 2;
 						explosionY = b.getY() + (b.getImage().getHeight(null) - bombExplosionFrames[0].getHeight()) / 2;
@@ -432,8 +451,8 @@ public class SliceItController implements ActionListener {
 						if (countdownTimer != null) {
 							countdownTimer.stop();
 						}
+						//if so then start the explosion
 						startExplosionAnimation();
-						points = 0;
 						break;
 					}
 				}
@@ -462,7 +481,7 @@ public class SliceItController implements ActionListener {
 			setLayout(null);
 			setBackground(Color.pink);
 			setPreferredSize(new Dimension(500, 500));
-			// Load background image (inlined try-catch)
+			// Load background image 
 			try {
 				backgroundImage = ImageIO.read(new File("images/playBackground.png"));
 			} catch (IOException e) {
@@ -470,20 +489,28 @@ public class SliceItController implements ActionListener {
 			}
 		}
 
+		/**
+		 * Draws background, fruits, bombs, and explosion onto the game panel.
+		 */
 		@Override
 		protected void paintComponent(Graphics g) {
+			//clears panel
 			super.paintComponent(g);
+			//draw background image
 			if (backgroundImage != null) {
 				g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
 			}
 
+			//draw fruit
 			Graphics2D g2d = (Graphics2D) g;
 			for (Fruit f : fruits) {
 				f.draw(g2d);
 			}
+			//draw bombs
 			for (Bomb b : bombs) {
 				g2d.drawImage(b.getImage(), b.getX(), b.getY(), null);
 			}
+			//draw explosion if needed
 			if (showExplosion && bombExplosionFrames != null && explosionFrame < bombExplosionFrames.length) {
 				g2d.drawImage(bombExplosionFrames[explosionFrame], explosionX, explosionY, null);
 			}
@@ -500,8 +527,11 @@ public class SliceItController implements ActionListener {
 		explosionTimer = new Timer(10, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				//go through the frames of the explosion
 				explosionFrame++;
+				//this tells when to stop going through frames
 				if (explosionFrame >= bombExplosionFrames.length) {
+					//stop game and show points
 					explosionTimer.stop();
 					JOptionPane.showMessageDialog(gameJFrame, "Game Over! You sliced a bomb!");
 					leaderboardData.add(username + " - " + points + " pts");
@@ -512,27 +542,38 @@ public class SliceItController implements ActionListener {
 			}
 		});
 		explosionTimer.start();
+
+		//stop game and countdown timers
+		if (gameTimer != null) { 
+			gameTimer.stop();
+		}
+		if (countdownTimer != null) { 
+			countdownTimer.stop();
+		}
 	}
 
 	/**
 	 * Displays the leaderboard panel.
 	 */
 	private void leaderboardPanel() {
+		//initialize panel
 		leaderBoardPanel = new BackgroundPanel("images/leaderBoardbackground.png");
 		leaderBoardPanel.setLayout(null);
 		leaderBoardPanel.setBackground(Color.pink);
 
+		//where scores will be held and displayed
 		JList<String> leaderBoard = new JList<>(leaderboardData.toArray(new String[0]));
 		JScrollPane scrollPane = new JScrollPane(leaderBoard);
 		scrollPane.setBounds(135, 145, 210, 180);
 		leaderBoardPanel.add(scrollPane);
 
+		//takes you back to main menu
 		JButton backButton = new JButton("BACK");
 		backButton.setBounds(185, 350, 130, 40);
 		backButton.addActionListener(e -> returnToMainPanel());
 
-		backButton.setBackground(Color.WHITE); // You can use any predefined color or create your own
-		backButton.setForeground(new Color(255, 105, 180)); // Neon pink vibe
+		backButton.setBackground(Color.WHITE); 
+		backButton.setForeground(new Color(255, 105, 180)); 
 
 		leaderBoardPanel.add(backButton);
 
@@ -547,21 +588,25 @@ public class SliceItController implements ActionListener {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == gameButton) {
-			// Prompt for username until a non-blank value is entered.
-			while (username == null || username.trim().isEmpty()) {
-				username = JOptionPane.showInputDialog(null, "Enter your username");
-				if (username == null) {
-					JOptionPane.showMessageDialog(gameJFrame, "You must enter a username to play!");
-				} else if (username.trim().isEmpty()) {
-					JOptionPane.showMessageDialog(gameJFrame, "Username can't be blank!");
-				}
+		Object source = e.getSource();
+		//brings you to game panel
+		if (source == gameButton) {
+			username = JOptionPane.showInputDialog(gameJFrame, "Enter your name:");
+			if (username != null && !username.trim().isEmpty()) {
+				points = 0;
+				timeRemaining = 60;
+				fruits.clear();
+				bombs.clear();
+				gameOver = false;
+				gamePanel();
 			}
-			gamePanel(); // launch the game panel
-		} else if (e.getSource() == rulesButton) {
+			//brings you to rules panel
+		} else if (source == rulesButton) {
 			rulesPanel();
-		} else if (e.getSource() == leaderButton) {
+			//brings you to leaderboard panel
+		} else if (source == leaderButton) {
 			leaderboardPanel();
 		}
 	}
 }
+

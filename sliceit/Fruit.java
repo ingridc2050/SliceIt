@@ -41,12 +41,10 @@ public class Fruit {
 		this.image = image;
 		this.x = x;
 		this.y = y;
-
 		this.velocityX = velocityX;
 		this.velocityY = velocityY;
 		this.width = image.getWidth();
 		this.height = image.getHeight();
-
 		this.slicedImage = slicedImage;
 
 	}
@@ -56,7 +54,9 @@ public class Fruit {
 	 * applies gravity to the vertical velocity.
 	 */
 	public void update() {
+		//move fruit horizontally
 		x += velocityX;
+		//move fruit vertically
 		y += velocityY;
 		velocityY += 0.3f; // gravity application
 	}
@@ -80,7 +80,7 @@ public class Fruit {
 	 */
 	public void slice() {
 		if (!isSliced) {
-			isSliced = true; // Switch to sliced image
+			isSliced = true; 
 		}
 	}
 
@@ -93,6 +93,7 @@ public class Fruit {
 	 * @return true if the fruit is completely off-screen; false otherwise
 	 */
 	public boolean isOffScreen(int panelWidth, int panelHeight) {
+		//is the fruit within the bounds of the panel dimensions
 		return (x + width < 0 || x - width > panelWidth || y - height > panelHeight);
 	}
 
