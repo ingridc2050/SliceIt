@@ -285,7 +285,7 @@ public class SliceItController implements ActionListener {
 	 * Displays the rules panel.
 	 */
 	private void rulesPanel() {
-		rulesPanel = new BackgroundPanel("images/rulesBackground.png");
+		rulesPanel = new BackgroundPanel("images/rulesScreen.png");
 		rulesPanel.setLayout(null);
 
 		// Back button to return to the main panel.
@@ -483,7 +483,7 @@ public class SliceItController implements ActionListener {
 			setPreferredSize(new Dimension(500, 500));
 			// Load background image 
 			try {
-				backgroundImage = ImageIO.read(new File("images/playBackground.png"));
+				backgroundImage = ImageIO.read(new File("images/playBackgrnd.png"));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -557,19 +557,19 @@ public class SliceItController implements ActionListener {
 	 */
 	private void leaderboardPanel() {
 		//initialize panel
-		leaderBoardPanel = new BackgroundPanel("images/leaderBoardbackground.png");
+		leaderBoardPanel = new BackgroundPanel("images/leaderboardbackgrnd.png");
 		leaderBoardPanel.setLayout(null);
 		leaderBoardPanel.setBackground(Color.pink);
 
 		//where scores will be held and displayed
 		JList<String> leaderBoard = new JList<>(leaderboardData.toArray(new String[0]));
 		JScrollPane scrollPane = new JScrollPane(leaderBoard);
-		scrollPane.setBounds(135, 145, 210, 180);
+		scrollPane.setBounds(135, 165, 210, 180);
 		leaderBoardPanel.add(scrollPane);
 
 		//takes you back to main menu
 		JButton backButton = new JButton("BACK");
-		backButton.setBounds(185, 350, 130, 40);
+		backButton.setBounds(185, 370, 130, 40);
 		backButton.addActionListener(e -> returnToMainPanel());
 
 		backButton.setBackground(Color.WHITE); 
