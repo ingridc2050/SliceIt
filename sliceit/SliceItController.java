@@ -1,8 +1,10 @@
 package sliceit;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import javax.sound.sampled.*;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -17,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import javax.imageio.ImageIO;
+import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -25,6 +28,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
@@ -127,6 +131,7 @@ public class SliceItController implements ActionListener {
 		gameJFrame.setSize(500, 500);
 		gameJFrame.setLocation(50, 50);
 		gameJFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
 
 		// Create a main panel that shows a welcome background.
 		mainPanel = new BackgroundPanel("images/welcomee.png");
@@ -394,8 +399,10 @@ public class SliceItController implements ActionListener {
 
 		// Time remaining label and countdown timer.
 		timeLabel = new JLabel("Time: " + timeRemaining);
-		timeLabel.setForeground(Color.WHITE);
-		timeLabel.setBounds(350, 20, 100, 30);
+		timeLabel.setForeground(Color.black);
+		timeLabel.setBounds(300, -7, 120, 30);
+		Font titleFontTime = new Font("Arial Black", Font.BOLD, 24);
+		timeLabel.setFont(titleFontTime);
 		gamePanel.add(timeLabel);
 		countdownTimer = new Timer(1000, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -460,8 +467,10 @@ public class SliceItController implements ActionListener {
 
 		// Score label.
 		pointLabel = new JLabel("Score: " + points);
-		pointLabel.setForeground(Color.WHITE);
-		pointLabel.setBounds(20, 20, 100, 30);
+		pointLabel.setForeground(Color.black);
+		Font titleFont = new Font("Arial Black", Font.BOLD, 24);
+		pointLabel.setFont(titleFont);
+		pointLabel.setBounds(0, -7, 160, 30);
 		gamePanel.add(pointLabel);
 
 		// Switch the frame content to the game panel.
@@ -534,7 +543,18 @@ public class SliceItController implements ActionListener {
 					explosionTimer.stop();
 					JOptionPane.showMessageDialog(gameJFrame, "Game Over! You sliced a bomb!");
 					leaderboardData.add(username + " - " + points + " pts");
-					returnToMainPanel();
+					int reply = JOptionPane.showConfirmDialog(gameJFrame, "Would you like to play again?", "Play again?", JOptionPane.YES_NO_OPTION);
+					if (reply == 1) {
+						returnToMainPanel();
+					} else {
+						points = 0;
+						timeRemaining = 60;
+						fruits.clear();
+						bombs.clear();
+						gameOver = false;
+						gamePanel();
+					}
+					
 				} else {
 					gamePanel.repaint();
 				}
@@ -559,6 +579,7 @@ public class SliceItController implements ActionListener {
 	    leaderBoardPanel = new BackgroundPanel("images/leaderboardbackgrnd.png");
 	    leaderBoardPanel.setLayout(null);
 
+<<<<<<< HEAD
 	    // 1. Make a copy and sort descending by score
 	    List<String> sortedData = new ArrayList<>(leaderboardData);
 	    sortedData.sort((a, b) -> {
@@ -583,6 +604,38 @@ public class SliceItController implements ActionListener {
 	    backButton.setBackground(Color.WHITE);
 	    backButton.setForeground(new Color(255, 105, 180));
 	    leaderBoardPanel.add(backButton);
+=======
+		//where scores will be held and displayed
+		JList<String> leaderBoard = new JList<>(leaderboardData.toArray(new String[0]));
+		JScrollPane scrollPane = new JScrollPane(leaderBoard);
+		scrollPane.setBounds(135, 165, 210, 180);
+		leaderBoardPanel.add(scrollPane);
+		
+		// Get leaderboard data and display the top 5 entries directly
+	    int top5Count = Math.min(5, leaderboardData.size());  // Ensure we don't go out of bounds
+
+	    // Create a DefaultListModel for the top 5 scores
+	    DefaultListModel<String> listModel = new DefaultListModel<>();
+	    for (int i = 0; i < top5Count; i++) {
+	        listModel.addElement(leaderboardData.get(i));  // Add the top 5 entries to the model
+	    }
+	    
+	    List<String> top5Scores = leaderboardData.subList(0, top5Count);  // Get the top 5 entries
+	    JList<String> leaderboardList = new JList<>(top5Scores.toArray(new String[0]));  // Pass List directly by converting to array
+	    leaderboardList.setFont(new Font("Arial", Font.PLAIN, 18));
+	    leaderboardList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+	    JScrollPane leaderboardScrollPane = new JScrollPane(leaderboardList);
+	    leaderBoardPanel.add(leaderboardScrollPane, BorderLayout.CENTER);
+
+
+		//takes you back to main menu
+		JButton backButton = new JButton("BACK");
+		backButton.setBounds(185, 370, 130, 40);
+		backButton.addActionListener(e -> returnToMainPanel());
+		backButton.setBackground(Color.WHITE); 
+		backButton.setForeground(new Color(255, 105, 180)); 
+		leaderBoardPanel.add(backButton);
+>>>>>>> 98785346d9a4a642d608e813beb85d2539e8aabe
 
 	    // swap panels
 	    gameJFrame.getContentPane().removeAll();
@@ -611,17 +664,34 @@ public class SliceItController implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 		//brings you to game panel
+		
 		if (source == gameButton) {
 			username = JOptionPane.showInputDialog(gameJFrame, "Enter your name:");
-			if (username != null && !username.trim().isEmpty()) {
+
+		    if (username == null || username.trim().isEmpty()) {
+		        JOptionPane.showMessageDialog(gameJFrame, "Please enter something in the box. You cannot have a blank username.");
+		    } else {
+		        boolean usernameTaken = false;
+		        for (String entry : leaderboardData) {
+		            String existingUsername = entry.split(":")[0].trim();
+		            if (existingUsername.equalsIgnoreCase(username.trim())) {
+		                usernameTaken = true;
+		                break;
+		            }
+		        }
+
+		        if (usernameTaken) {
+		            JOptionPane.showMessageDialog(gameJFrame, "That username is taken. Please choose another username.");
+		        } else {
 				points = 0;
 				timeRemaining = 60;
 				fruits.clear();
 				bombs.clear();
 				gameOver = false;
 				gamePanel();
-			}
 			//brings you to rules panel
+		        }
+		    }
 		} else if (source == rulesButton) {
 			rulesPanel();
 			//brings you to leaderboard panel
@@ -630,4 +700,5 @@ public class SliceItController implements ActionListener {
 		}
 	}
 }
+		
 
