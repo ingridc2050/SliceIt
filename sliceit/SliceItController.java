@@ -628,19 +628,31 @@ public class SliceItController implements ActionListener {
 		
 		if (source == gameButton) {
 			username = JOptionPane.showInputDialog(gameJFrame, "Enter your name:");
-			if (username == null || username.trim().isEmpty()) {
-				JOptionPane.showMessageDialog(gameJFrame, "Please enter something in the box. You cannot have a blank username.");
-			} else if (leaderboardData.contains(username)){
-				JOptionPane.showMessageDialog(gameJFrame, "That username is taken. Please choose another username.");
-			} else {
+
+		    if (username == null || username.trim().isEmpty()) {
+		        JOptionPane.showMessageDialog(gameJFrame, "Please enter something in the box. You cannot have a blank username.");
+		    } else {
+		        boolean usernameTaken = false;
+		        for (String entry : leaderboardData) {
+		            String existingUsername = entry.split(":")[0].trim();
+		            if (existingUsername.equalsIgnoreCase(username.trim())) {
+		                usernameTaken = true;
+		                break;
+		            }
+		        }
+
+		        if (usernameTaken) {
+		            JOptionPane.showMessageDialog(gameJFrame, "That username is taken. Please choose another username.");
+		        } else {
 				points = 0;
 				timeRemaining = 60;
 				fruits.clear();
 				bombs.clear();
 				gameOver = false;
 				gamePanel();
-			}
 			//brings you to rules panel
+		        }
+		    }
 		} else if (source == rulesButton) {
 			rulesPanel();
 			//brings you to leaderboard panel
@@ -649,4 +661,5 @@ public class SliceItController implements ActionListener {
 		}
 	}
 }
+		
 
