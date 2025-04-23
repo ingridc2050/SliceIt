@@ -43,6 +43,7 @@ import javax.swing.Timer;
  * </p>
  */
 public class SliceItController implements ActionListener {
+
 	/** The main game window. */
 	private final JFrame gameJFrame;
 	/** The main menu panel. */
@@ -524,6 +525,9 @@ public class SliceItController implements ActionListener {
 			}
 		}
 	}
+	
+	
+	
 
 	/**
 	 * Starts the bomb explosion animation.
@@ -542,7 +546,8 @@ public class SliceItController implements ActionListener {
 					//stop game and show points
 					explosionTimer.stop();
 					JOptionPane.showMessageDialog(gameJFrame, "Game Over! You sliced a bomb!");
-					leaderboardData.add(username + " - " + points + " pts");
+					//leaderboardData.add(username + " - " + points + " pts");
+					 updateLeaderboard();
 					int reply = JOptionPane.showConfirmDialog(gameJFrame, "Would you like to play again?", "Play again?", JOptionPane.YES_NO_OPTION);
 					if (reply == 1) {
 						returnToMainPanel();
@@ -570,135 +575,143 @@ public class SliceItController implements ActionListener {
 			countdownTimer.stop();
 		}
 	}
+	
+	
 
 	/**
-	 * Displays the leaderboard panel.
+	 * Updates the leaderboard with the player's latest score.
+	 */
+	private void updateLeaderboard() {
+	    // Create a flag to check if the username already exists in the leaderboard
+	    boolean userFound = false;
+	    
+	    // Iterate over the leaderboard data to check if the username exists
+	    for (int i = 0; i < leaderboardData.size(); i++) {
+	        String entry = leaderboardData.get(i);
+	        String existingUsername = entry.split(" - ")[0].trim(); // Extract the username from the string
+	        if (existingUsername.equalsIgnoreCase(username)) {
+	            // If username found, update the score
+	            leaderboardData.set(i, username + " - " + points + " pts");
+	            userFound = true;
+	            break;
+	        }
+	    }
+	    
+	    // If the username doesn't exist, add a new entry
+	    if (!userFound) {
+	        leaderboardData.add(username + " - " + points + " pts");
+	    }
+	    
+	    // Sort the leaderboard by score in descending order
+	    leaderboardData.sort((a, b) -> {
+	        int scoreA = Integer.parseInt(a.split(" - ")[1].replace(" pts", "").trim());
+	        int scoreB = Integer.parseInt(b.split(" - ")[1].replace(" pts", "").trim());
+	        return Integer.compare(scoreB, scoreA);  // Sort in descending order
+	    });
+	    
+	    // Keep only the top 5 scores
+	    if (leaderboardData.size() > 5) {
+	        leaderboardData = leaderboardData.subList(0, 5);
+	    }
+	}
+	
+	
+
+
+
+	
+	/**
+	 * Displays the leaderboard panel with top 5 scores.
 	 */
 	private void leaderboardPanel() {
-	    // initialize panel background
+	    // Initialize panel
 	    leaderBoardPanel = new BackgroundPanel("images/leaderboardbackgrnd.png");
 	    leaderBoardPanel.setLayout(null);
+	    leaderBoardPanel.setBackground(Color.pink);
 
-<<<<<<< HEAD
-	    // 1. Make a copy and sort descending by score
-	    List<String> sortedData = new ArrayList<>(leaderboardData);
-	    sortedData.sort((a, b) -> {
-	        int scoreA = parseScore(a);
-	        int scoreB = parseScore(b);
-	        return Integer.compare(scoreB, scoreA); // descending
-	    });
-
-	    // 2. Limit to top 5 (or fewer if less than 5 entries)
-	    List<String> topFive = sortedData.subList(0, Math.min(5, sortedData.size()));
-
-	    // 3. Put them into the JList
-	    JList<String> leaderBoard = new JList<>(topFive.toArray(new String[0]));
+	    // Create a JList to display the top 5 leaderboard entries
+	    JList<String> leaderBoard = new JList<>(leaderboardData.toArray(new String[0]));
+	    leaderBoard.setFont(new Font("Arial", Font.PLAIN, 18));
+	    leaderBoard.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+	    
+	    // Add leaderboard list to scroll pane
 	    JScrollPane scrollPane = new JScrollPane(leaderBoard);
 	    scrollPane.setBounds(135, 165, 210, 180);
 	    leaderBoardPanel.add(scrollPane);
-
-	    // back button
+	    
+	    // Add "Back" button
 	    JButton backButton = new JButton("BACK");
 	    backButton.setBounds(185, 370, 130, 40);
 	    backButton.addActionListener(e -> returnToMainPanel());
 	    backButton.setBackground(Color.WHITE);
 	    backButton.setForeground(new Color(255, 105, 180));
 	    leaderBoardPanel.add(backButton);
-=======
-		//where scores will be held and displayed
-		JList<String> leaderBoard = new JList<>(leaderboardData.toArray(new String[0]));
-		JScrollPane scrollPane = new JScrollPane(leaderBoard);
-		scrollPane.setBounds(135, 165, 210, 180);
-		leaderBoardPanel.add(scrollPane);
-		
-		// Get leaderboard data and display the top 5 entries directly
-	    int top5Count = Math.min(5, leaderboardData.size());  // Ensure we don't go out of bounds
 
-	    // Create a DefaultListModel for the top 5 scores
-	    DefaultListModel<String> listModel = new DefaultListModel<>();
-	    for (int i = 0; i < top5Count; i++) {
-	        listModel.addElement(leaderboardData.get(i));  // Add the top 5 entries to the model
-	    }
-	    
-	    List<String> top5Scores = leaderboardData.subList(0, top5Count);  // Get the top 5 entries
-	    JList<String> leaderboardList = new JList<>(top5Scores.toArray(new String[0]));  // Pass List directly by converting to array
-	    leaderboardList.setFont(new Font("Arial", Font.PLAIN, 18));
-	    leaderboardList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-	    JScrollPane leaderboardScrollPane = new JScrollPane(leaderboardList);
-	    leaderBoardPanel.add(leaderboardScrollPane, BorderLayout.CENTER);
-
-
-		//takes you back to main menu
-		JButton backButton = new JButton("BACK");
-		backButton.setBounds(185, 370, 130, 40);
-		backButton.addActionListener(e -> returnToMainPanel());
-		backButton.setBackground(Color.WHITE); 
-		backButton.setForeground(new Color(255, 105, 180)); 
-		leaderBoardPanel.add(backButton);
->>>>>>> 98785346d9a4a642d608e813beb85d2539e8aabe
-
-	    // swap panels
+	    // Update the main frame with leaderboard panel
 	    gameJFrame.getContentPane().removeAll();
 	    gameJFrame.getContentPane().add(leaderBoardPanel);
 	    gameJFrame.revalidate();
 	    gameJFrame.repaint();
 	}
 
-	/**
-	 * Helper to extract the numeric score from a string like "Alice - 120 pts".
-	 */
-	private int parseScore(String entry) {
-	    try {
-	        // split on " - " then trim off " pts"
-	        String[] parts = entry.split(" - ");
-	        return Integer.parseInt(parts[1].replace(" pts", "").trim());
-	    } catch (Exception e) {
-	        return 0; // fallback if format is unexpected
-	    }
-	}
 
 	/**
 	 * Handles button click events from the main menu.
 	 */
 	@Override
+	
 	public void actionPerformed(ActionEvent e) {
-		Object source = e.getSource();
-		//brings you to game panel
-		
-		if (source == gameButton) {
-			username = JOptionPane.showInputDialog(gameJFrame, "Enter your name:");
+	    Object source = e.getSource();
+	    //brings you to game panel
+	    if (source == gameButton) {
+	        username = JOptionPane.showInputDialog(gameJFrame, "Enter your name:");
 
-		    if (username == null || username.trim().isEmpty()) {
-		        JOptionPane.showMessageDialog(gameJFrame, "Please enter something in the box. You cannot have a blank username.");
-		    } else {
-		        boolean usernameTaken = false;
-		        for (String entry : leaderboardData) {
-		            String existingUsername = entry.split(":")[0].trim();
-		            if (existingUsername.equalsIgnoreCase(username.trim())) {
-		                usernameTaken = true;
-		                break;
-		            }
-		        }
+	        // Check if the username is empty or null
+	        if (username == null || username.trim().isEmpty()) {
+	            JOptionPane.showMessageDialog(gameJFrame, "Please enter something in the box. You cannot have a blank username.");
+	            username = JOptionPane.showInputDialog(gameJFrame, "Enter your name:");
+                points = 0;
+                timeRemaining = 60;
+                fruits.clear();
+                bombs.clear();
+                gameOver = false;
+                gamePanel();
+	        } else {
+	            boolean usernameTaken = false;
 
-		        if (usernameTaken) {
-		            JOptionPane.showMessageDialog(gameJFrame, "That username is taken. Please choose another username.");
-		        } else {
-				points = 0;
-				timeRemaining = 60;
-				fruits.clear();
-				bombs.clear();
-				gameOver = false;
-				gamePanel();
-			//brings you to rules panel
-		        }
-		    }
-		} else if (source == rulesButton) {
-			rulesPanel();
-			//brings you to leaderboard panel
-		} else if (source == leaderButton) {
-			leaderboardPanel();
-		}
+	            // Check if the entered username already exists in the leaderboard
+	            for (String entry : leaderboardData) {
+	                String existingUsername = entry.split(" - ")[0].trim();  // Assuming the format "username - score"
+	                if (existingUsername.equalsIgnoreCase(username.trim())) {
+	                    usernameTaken = true;
+	                    break;
+	                }
+	            }
+
+	            // If the username is taken, ask the user to choose another one
+	            if (usernameTaken) {
+	                JOptionPane.showMessageDialog(gameJFrame, "That username is taken. Please choose another username.");
+	                username = JOptionPane.showInputDialog(gameJFrame, "Enter your name:");
+	                points = 0;
+	                timeRemaining = 60;
+	                fruits.clear();
+	                bombs.clear();
+	                gameOver = false;
+	                gamePanel();
+	            } else {
+	                // Reset game state and start the game if the username is unique
+	                points = 0;
+	                timeRemaining = 60;
+	                fruits.clear();
+	                bombs.clear();
+	                gameOver = false;
+	                gamePanel();
+	            }
+	        }
+	    } else if (source == rulesButton) {
+	        rulesPanel();
+	    } else if (source == leaderButton) {
+	        leaderboardPanel();
+	    }
 	}
 }
-		
-
