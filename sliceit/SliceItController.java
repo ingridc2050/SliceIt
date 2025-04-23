@@ -39,7 +39,6 @@ import javax.swing.Timer;
  * </p>
  */
 public class SliceItController implements ActionListener {
-
 	/** The main game window. */
 	private final JFrame gameJFrame;
 	/** The main menu panel. */
@@ -556,31 +555,53 @@ public class SliceItController implements ActionListener {
 	 * Displays the leaderboard panel.
 	 */
 	private void leaderboardPanel() {
-		//initialize panel
-		leaderBoardPanel = new BackgroundPanel("images/leaderboardbackgrnd.png");
-		leaderBoardPanel.setLayout(null);
-		leaderBoardPanel.setBackground(Color.pink);
+	    // initialize panel background
+	    leaderBoardPanel = new BackgroundPanel("images/leaderboardbackgrnd.png");
+	    leaderBoardPanel.setLayout(null);
 
-		//where scores will be held and displayed
-		JList<String> leaderBoard = new JList<>(leaderboardData.toArray(new String[0]));
-		JScrollPane scrollPane = new JScrollPane(leaderBoard);
-		scrollPane.setBounds(135, 165, 210, 180);
-		leaderBoardPanel.add(scrollPane);
+	    // 1. Make a copy and sort descending by score
+	    List<String> sortedData = new ArrayList<>(leaderboardData);
+	    sortedData.sort((a, b) -> {
+	        int scoreA = parseScore(a);
+	        int scoreB = parseScore(b);
+	        return Integer.compare(scoreB, scoreA); // descending
+	    });
 
-		//takes you back to main menu
-		JButton backButton = new JButton("BACK");
-		backButton.setBounds(185, 370, 130, 40);
-		backButton.addActionListener(e -> returnToMainPanel());
+	    // 2. Limit to top 5 (or fewer if less than 5 entries)
+	    List<String> topFive = sortedData.subList(0, Math.min(5, sortedData.size()));
 
-		backButton.setBackground(Color.WHITE); 
-		backButton.setForeground(new Color(255, 105, 180)); 
+	    // 3. Put them into the JList
+	    JList<String> leaderBoard = new JList<>(topFive.toArray(new String[0]));
+	    JScrollPane scrollPane = new JScrollPane(leaderBoard);
+	    scrollPane.setBounds(135, 165, 210, 180);
+	    leaderBoardPanel.add(scrollPane);
 
-		leaderBoardPanel.add(backButton);
+	    // back button
+	    JButton backButton = new JButton("BACK");
+	    backButton.setBounds(185, 370, 130, 40);
+	    backButton.addActionListener(e -> returnToMainPanel());
+	    backButton.setBackground(Color.WHITE);
+	    backButton.setForeground(new Color(255, 105, 180));
+	    leaderBoardPanel.add(backButton);
 
-		gameJFrame.getContentPane().removeAll();
-		gameJFrame.getContentPane().add(leaderBoardPanel);
-		gameJFrame.revalidate();
-		gameJFrame.repaint();
+	    // swap panels
+	    gameJFrame.getContentPane().removeAll();
+	    gameJFrame.getContentPane().add(leaderBoardPanel);
+	    gameJFrame.revalidate();
+	    gameJFrame.repaint();
+	}
+
+	/**
+	 * Helper to extract the numeric score from a string like "Alice - 120 pts".
+	 */
+	private int parseScore(String entry) {
+	    try {
+	        // split on " - " then trim off " pts"
+	        String[] parts = entry.split(" - ");
+	        return Integer.parseInt(parts[1].replace(" pts", "").trim());
+	    } catch (Exception e) {
+	        return 0; // fallback if format is unexpected
+	    }
 	}
 
 	/**
