@@ -668,7 +668,7 @@ public class SliceItController implements ActionListener {
 
 	        // Check if the username is empty or null
 	        if (username == null || username.trim().isEmpty()) {
-	            JOptionPane.showMessageDialog(gameJFrame, "Please enter something in the box. You cannot have a blank username.");
+	            JOptionPane.showMessageDialog(gameJFrame, "Please enter something in the box or . You cannot have a blank username.");
 	            username = JOptionPane.showInputDialog(gameJFrame, "Enter your name:");
                 points = 0;
                 timeRemaining = 60;
