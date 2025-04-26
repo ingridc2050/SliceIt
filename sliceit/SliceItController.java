@@ -43,7 +43,6 @@ import javax.swing.Timer;
  * </p>
  */
 public class SliceItController implements ActionListener {
-
 	/** The main game window. */
 	private final JFrame gameJFrame;
 	/** The main menu panel. */
@@ -108,8 +107,8 @@ public class SliceItController implements ActionListener {
 	private GamePanel gamePanel;
 
 	/**
-	 * The main entry point for the SliceIt game.
-	 *
+	 * The main entry point launches the Swing application for the SliceIt game.
+	 * 
 	 * @param args command line arguments (not used)
 	 */
 	public static void main(String[] args) {
@@ -127,7 +126,7 @@ public class SliceItController implements ActionListener {
 	 * loads necessary images, and creates the navigation buttons.
 	 */
 	public SliceItController() {
-		//create your frame
+		//creating main frame
 		gameJFrame = new JFrame();
 		gameJFrame.setSize(500, 500);
 		gameJFrame.setLocation(50, 50);
@@ -141,12 +140,12 @@ public class SliceItController implements ActionListener {
 		gameJFrame.getContentPane().add(mainPanel);
 
 		// Load images needed for the game.
-		loadSlicedFruitImages();
+		loadFruitImages();
 		loadBombImage();
 		loadBombExplosionImages();
 
-		// Set up the main buttons with transparent backgrounds.
-
+		// setting up the main buttons 
+		
 		//play button
 		ImageIcon playIcon = new ImageIcon("images/playButton.png");
 		gameButton = new JButton(playIcon);
@@ -223,9 +222,11 @@ public class SliceItController implements ActionListener {
 	}
 
 	/**
+	 * OpenAI.(2025). ChatGPT [Large Language Model]
+	 * When prompted with, "How do I read from my spritesheet attached above?" , this was mostly the generated code. I edited the for loop to handle sliced and unsliced fruit at the same time (the spritesheet was provided) 
 	 * Loads fruit images (both unsliced and sliced) from a sprite sheet.
 	 */
-	private void loadSlicedFruitImages() {
+	private void loadFruitImages() {
 		try {
 			//sheet for sliced fruits
 			BufferedImage spriteSheet = ImageIO.read(new File("images/fruits.png"));
@@ -236,9 +237,11 @@ public class SliceItController implements ActionListener {
 			unslicedFruits = new BufferedImage[rows];
 			slicedFruits = new BufferedImage[rows];
 
-			//grab the image based on what fruit is sliced
+			
 			for (int i = 0; i < rows; i++) {
+				// store unsliced fruit image
 				unslicedFruits[i] = spriteSheet.getSubimage(0, i * fruitHeight, fruitWidth, fruitHeight);
+				 // store sliced fruit image 
 				slicedFruits[i] = spriteSheet.getSubimage(105, i * fruitHeight, fruitWidth + 10, fruitHeight);
 			}
 		} catch (IOException e) {
@@ -321,8 +324,13 @@ public class SliceItController implements ActionListener {
 	}
 
 	/**
-	 * Initializes and displays the game panel where gameplay occurs.
-	 */
+     * Initializes and starts the gameplay panel with spawning, timers,
+     * mouse listeners, and game logic.
+     * 
+     * OpenAI.(2025). ChatGPT [Large Language Model]
+	 * When prompted with, "How do I create objects of fruit and bomb using the images from the lists? I also want them to have velocityX and velocityY", the generated code includes the if statements
+     * 
+     */
 	private void gamePanel() {
 		// Create a new instance of our custom GamePanel.
 		gamePanel = new GamePanel();
@@ -330,17 +338,27 @@ public class SliceItController implements ActionListener {
 		// Start a timer that updates the game logic.
 		Timer timer = new Timer(20, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// Occasionally spawn a new fruit.
+				// spawn a new fruit with a 5% chance each frame
 				if (rand.nextDouble() < 0.05) {
 					int panelWidth = gamePanel.getWidth();
+					// choose a random index for which fruit to spawn
 					int fruitIndex = rand.nextInt(unslicedFruits.length);
+					 // load the unsliced fruit image at that index
 					BufferedImage img = unslicedFruits[fruitIndex];
+					// computes a random x‐position so the fruit appears fully within the panel
+				    // Math.max ensures the bound is at least 1 to avoid IllegalArgumentException
 					int x = rand.nextInt(Math.max(panelWidth - img.getWidth(), 1));
+					// start the fruit at the bottom of the panel
 					int y = gamePanel.getHeight() - img.getHeight();
+					// gives the fruit an initial upward velocity between 10 and 15 pixels/frame
 					float velocityY = -(float) (rand.nextDouble() * 5 + 10);
+					// give the fruit a random horizontal velocity between -2 and +2 pixels/frame
 					float velocityX = (float) (rand.nextDouble() * 4 - 2);
+					// load the  sliced‐fruit image for when it’s cut
 					BufferedImage slicedImg = slicedFruits[fruitIndex];
+					// construct a new Fruit object with the chosen images and velocities
 					Fruit fruit = new Fruit(img, slicedImg, x, y, velocityX, velocityY);
+					// add the new fruit to the list of active fruits so it will be updated and drawn
 					fruits.add(fruit);
 				}
 
@@ -365,14 +383,22 @@ public class SliceItController implements ActionListener {
 					}
 				}
 
-				// Occasionally spawn a new bomb.
+				// Spawn a new bomb with a 2% chance each frame
 				if (rand.nextDouble() < 0.02 && bomb != null) {
+					// get the current width of the game panel
 					int panelWidth = gamePanel.getWidth();
+					// choose a random x‐position so the bomb appears fully within the panel
+				    // math.max ensures the bound is at least 1 to avoid an exception
 					int x = rand.nextInt(Math.max(panelWidth - bomb.getWidth(), 1));
+					// position the bomb so its bottom edge sits at the bottom of the panel
 					int y = gamePanel.getHeight() - bomb.getHeight();
+					// give the bomb an initial upward velocity between 10 and 15 pixels/frame
 					float velocityY = -(float) (rand.nextDouble() * 5 + 10);
+					// give the bomb a random horizontal velocity between -2 and +2 pixels/frame
 					float velocityX = (float) (rand.nextDouble() * 4 - 2);
+					// create a new Bomb object with the chosen position and velocities
 					Bomb newBomb = new Bomb(bomb, x, y, velocityX, velocityY);
+					// adds the new bomb to the list so it gets updated and drawn each frame
 					bombs.add(newBomb);
 				}
 				// Repaint the game panel.
@@ -389,7 +415,7 @@ public class SliceItController implements ActionListener {
 				if (!gameOver) {
 					timer.stop();
 					//give player their points and add to leaderboard
-					JOptionPane.showMessageDialog(gameJFrame, "You won! Your score: " + points);
+					JOptionPane.showMessageDialog(gameJFrame, "You won! Your score: " + points, "CONGRATULATIONS", JOptionPane.INFORMATION_MESSAGE);
 					leaderboardData.add(username + " - " + points + " pts");
 					returnToMainPanel();
 				}
@@ -405,6 +431,7 @@ public class SliceItController implements ActionListener {
 		Font titleFontTime = new Font("Arial Black", Font.BOLD, 24);
 		timeLabel.setFont(titleFontTime);
 		gamePanel.add(timeLabel);
+		//total time decreases by one second every second
 		countdownTimer = new Timer(1000, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				timeRemaining--;
@@ -417,6 +444,8 @@ public class SliceItController implements ActionListener {
 		countdownTimer.start();
 
 		// Add mouse motion listener to detect dragging (slicing).
+		// OpenAI.(2025). ChatGPT [Large Language Model]
+		// When prompted with, "How can I check if mouse has been dragged on the fruit and bomb?" , I provided the fruit and bomb class as well and this was the generated code. 
 		gamePanel.addMouseMotionListener(new MouseAdapter() {
 			@Override
 			public void mouseDragged(MouseEvent e) {
@@ -519,6 +548,8 @@ public class SliceItController implements ActionListener {
 			for (Bomb b : bombs) {
 				g2d.drawImage(b.getImage(), b.getX(), b.getY(), null);
 			}
+			//OpenAI.(2025). ChatGPT [Large Language Model]
+			//When prompted with, "How do I draw the explosion frames for my bomb explosion animation?" , this was the generated code. 
 			//draw explosion if needed
 			if (showExplosion && bombExplosionFrames != null && explosionFrame < bombExplosionFrames.length) {
 				g2d.drawImage(bombExplosionFrames[explosionFrame], explosionX, explosionY, null);
@@ -530,7 +561,7 @@ public class SliceItController implements ActionListener {
 	
 
 	/**
-	 * Starts the bomb explosion animation.
+	 * Handles the bomb explosion animation.
 	 */
 	private void startExplosionAnimation() {
 		showExplosion = true;
@@ -545,8 +576,7 @@ public class SliceItController implements ActionListener {
 				if (explosionFrame >= bombExplosionFrames.length) {
 					//stop game and show points
 					explosionTimer.stop();
-					JOptionPane.showMessageDialog(gameJFrame, "Game Over! You sliced a bomb!");
-					//leaderboardData.add(username + " - " + points + " pts");
+					JOptionPane.showMessageDialog(gameJFrame, "Game Over! You sliced a bomb!", "YOU LOST!", JOptionPane.WARNING_MESSAGE);
 					 updateLeaderboard();
 					int reply = JOptionPane.showConfirmDialog(gameJFrame, "Would you like to play again?", "Play again?", JOptionPane.YES_NO_OPTION);
 					if (reply == 1) {
@@ -580,6 +610,8 @@ public class SliceItController implements ActionListener {
 
 	/**
 	 * Updates the leaderboard with the player's latest score.
+	 * OpenAI.(2025). ChatGPT [Large Language Model]
+	 * When prompted with, "How do I make sure that the user's latest score is displayed in the leaderboard and only the top 5 are shown?" , this was the generated code. 
 	 */
 	private void updateLeaderboard() {
 	    // Create a flag to check if the username already exists in the leaderboard
@@ -588,7 +620,8 @@ public class SliceItController implements ActionListener {
 	    // Iterate over the leaderboard data to check if the username exists
 	    for (int i = 0; i < leaderboardData.size(); i++) {
 	        String entry = leaderboardData.get(i);
-	        String existingUsername = entry.split(" - ")[0].trim(); // Extract the username from the string
+	        // Extract the username from the string
+	        String existingUsername = entry.split(" - ")[0].trim(); 
 	        if (existingUsername.equalsIgnoreCase(username)) {
 	            // If username found, update the score
 	            leaderboardData.set(i, username + " - " + points + " pts");
@@ -666,25 +699,24 @@ public class SliceItController implements ActionListener {
 	    if (source == gameButton) {
 	        // 1) keep prompting until we get a non‐empty, new username
 	        while (true) {
-	            String input = JOptionPane.showInputDialog(gameJFrame, "Enter your name:");
+	            String input = JOptionPane.showInputDialog(gameJFrame, "Enter your name:", "Name Input", JOptionPane.INFORMATION_MESSAGE );
 	            if (input == null) {
 	                // user hit “Cancel” → just go back to main menu
 	                returnToMainPanel();
 	                return;
 	            }
+	            // Disallow leading or trailing spaces in the username
 	            if (!input.equals(input.trim())) {
-	                JOptionPane.showMessageDialog(gameJFrame,
-	                    "Usernames cannot start or end with spaces. Please enter a name without leading or trailing spaces.");
+	                JOptionPane.showMessageDialog(gameJFrame,"Usernames cannot start or end with spaces. Please enter a name without leading or trailing spaces.","Error",JOptionPane.ERROR_MESSAGE);
 	                continue;
 	            }
-	            
+	           // Disallow blank usernames (after trimming)
 	            if (input.trim().isEmpty()) {
-	                JOptionPane.showMessageDialog(gameJFrame,
-	                    "Please enter something in the box. You cannot have a blank username.");
+	                JOptionPane.showMessageDialog(gameJFrame,"Please enter something in the box. You cannot have a blank username.","Error", JOptionPane.ERROR_MESSAGE);
 	                continue;   // back to top of loop
 	            }
 	            
-	            
+	           // Check whether the chosen username already exists in the leaderboard
 	            boolean taken = false;
 	            for (String entry : leaderboardData) {
 	                String existing = entry.split(" - ")[0].trim();
@@ -693,9 +725,9 @@ public class SliceItController implements ActionListener {
 	                    break;
 	                }
 	            }
+	           // If the username is already taken, show an error and loop again
 	            if (taken) {
-	                JOptionPane.showMessageDialog(gameJFrame,
-	                    "That username is taken. Please choose another username.");
+	                JOptionPane.showMessageDialog(gameJFrame, "That username is taken. Please choose another username.","Error", JOptionPane.ERROR_MESSAGE );
 	                continue;   // back to top of loop
 	            }
 	            // if we reach here, the name is valid
