@@ -664,53 +664,58 @@ public class SliceItController implements ActionListener {
 	    Object source = e.getSource();
 	    //brings you to game panel
 	    if (source == gameButton) {
-	        username = JOptionPane.showInputDialog(gameJFrame, "Enter your name:");
-
-	        // Check if the username is empty or null
-	        if (username == null || username.trim().isEmpty()) {
-	            JOptionPane.showMessageDialog(gameJFrame, "Please enter something in the box or . You cannot have a blank username.");
-	            username = JOptionPane.showInputDialog(gameJFrame, "Enter your name:");
-                points = 0;
-                timeRemaining = 60;
-                fruits.clear();
-                bombs.clear();
-                gameOver = false;
-                gamePanel();
-	        } else {
-	            boolean usernameTaken = false;
-
-	            // Check if the entered username already exists in the leaderboard
+	        // 1) keep prompting until we get a non‐empty, new username
+	        while (true) {
+	            String input = JOptionPane.showInputDialog(gameJFrame, "Enter your name:");
+	            if (input == null) {
+	                // user hit “Cancel” → just go back to main menu
+	                returnToMainPanel();
+	                return;
+	            }
+	            if (!input.equals(input.trim())) {
+	                JOptionPane.showMessageDialog(gameJFrame,
+	                    "Usernames cannot start or end with spaces. Please enter a name without leading or trailing spaces.");
+	                continue;
+	            }
+	            
+	            if (input.trim().isEmpty()) {
+	                JOptionPane.showMessageDialog(gameJFrame,
+	                    "Please enter something in the box. You cannot have a blank username.");
+	                continue;   // back to top of loop
+	            }
+	            
+	            
+	            boolean taken = false;
 	            for (String entry : leaderboardData) {
-	                String existingUsername = entry.split(" - ")[0].trim();  // Assuming the format "username - score"
-	                if (existingUsername.equalsIgnoreCase(username.trim())) {
-	                    usernameTaken = true;
+	                String existing = entry.split(" - ")[0].trim();
+	                if (existing.equalsIgnoreCase(input.trim())) {
+	                    taken = true;
 	                    break;
 	                }
 	            }
-
-	            // If the username is taken, ask the user to choose another one
-	            if (usernameTaken) {
-	                JOptionPane.showMessageDialog(gameJFrame, "That username is taken. Please choose another username.");
-	                username = JOptionPane.showInputDialog(gameJFrame, "Enter your name:");
-	                points = 0;
-	                timeRemaining = 60;
-	                fruits.clear();
-	                bombs.clear();
-	                gameOver = false;
-	                gamePanel();
-	            } else {
-	                // Reset game state and start the game if the username is unique
-	                points = 0;
-	                timeRemaining = 60;
-	                fruits.clear();
-	                bombs.clear();
-	                gameOver = false;
-	                gamePanel();
+	            if (taken) {
+	                JOptionPane.showMessageDialog(gameJFrame,
+	                    "That username is taken. Please choose another username.");
+	                continue;   // back to top of loop
 	            }
+	            // if we reach here, the name is valid
+	            username = input;
+	            break;
 	        }
-	    } else if (source == rulesButton) {
+
+	        // 2) now that username is valid, reset your game state and launch
+	        points = 0;
+	        timeRemaining = 60;
+	        fruits.clear();
+	        bombs.clear();
+	        gameOver = false;
+	        gamePanel();
+	    }
+	
+	     else if (source == rulesButton) {
 	        rulesPanel();
-	    } else if (source == leaderButton) {
+	    }
+	    else if (source == leaderButton) {
 	        leaderboardPanel();
 	    }
 	}
