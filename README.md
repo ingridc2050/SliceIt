@@ -1,4 +1,0 @@
-#SliceItGirl
-# SliceIt
-
-#HOLA
