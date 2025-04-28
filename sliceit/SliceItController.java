@@ -1,6 +1,5 @@
 package sliceit;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import javax.sound.sampled.*;
 import java.awt.Dimension;
@@ -19,7 +18,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import javax.imageio.ImageIO;
-import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -31,6 +29,13 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+
+/**
+ * 90% of the comments including JavaDoc, have been written by OpenAI(2025), ChatGPT.
+ * Credit for the fruit images:
+ * https://www.pinterest.com/pin/450852612678865395/
+ */
+
 
 /**
  * This controller class serves as the controller for the SliceIt game. It
@@ -131,9 +136,14 @@ public class SliceItController implements ActionListener {
 		gameJFrame.setSize(500, 500);
 		gameJFrame.setLocation(50, 50);
 		gameJFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
 
-
-		// Create a main panel that shows a welcome background.
+		/**
+		 * Background Image Credit:
+		 * OpenAI.(2025). ChatGPT [Large Language Model]
+		 * Creates a main panel that shows a welcome background.
+		 * This image is used for educational/non-commercial purposes only.
+		 */
 		mainPanel = new BackgroundPanel("images/welcomee.png");
 
 		// Add main panel to the frame (only once)
@@ -144,23 +154,36 @@ public class SliceItController implements ActionListener {
 		loadBombImage();
 		loadBombExplosionImages();
 
-		// setting up the main buttons 
-		
-		//play button
+		/**
+		 * Background Image Credit:
+		 * OpenAI.(2025). ChatGPT [Large Language Model]
+		 * It is an image for the play button
+		 * This image is used for educational/non-commercial purposes only.
+		 */
 		ImageIcon playIcon = new ImageIcon("images/playButton.png");
 		gameButton = new JButton(playIcon);
 		gameButton.setBounds(185, 200, 140, 37);
 		gameButton.addActionListener(this);
 		mainPanel.add(gameButton);
 
-		//rule button
+		/**
+		 * Background Image Credit:
+		 * OpenAI.(2025). ChatGPT [Large Language Model]
+		 * It is an image for the rules button
+		 * This image is used for educational/non-commercial purposes only.
+		 */
 		ImageIcon ruleIcon = new ImageIcon("images/rulesButton.png");
 		rulesButton = new JButton(ruleIcon);
 		rulesButton.setBounds(185, 240, 140, 37);
 		rulesButton.addActionListener(this);
 		mainPanel.add(rulesButton);
 
-		//leaderboard button
+		/**
+		 * Background Image Credit:
+		 * OpenAI.(2025). ChatGPT [Large Language Model]
+		 * It is an image for the leaderboard button
+		 * This image is used for educational/non-commercial purposes only.
+		 */
 		ImageIcon leadIcon = new ImageIcon("images/leaderBoardButton.png");
 		leaderButton = new JButton(leadIcon);
 		leaderButton.setBounds(176, 280, 158, 37);
@@ -293,6 +316,12 @@ public class SliceItController implements ActionListener {
 	 * Displays the rules panel.
 	 */
 	private void rulesPanel() {
+		/**
+		 * Background Image Credit:
+		 * OpenAI.(2025). ChatGPT [Large Language Model]
+		 * It is an image for the rules screen.
+		 * This image is used for educational/non-commercial purposes only.
+		 */
 		rulesPanel = new BackgroundPanel("images/rulesScreen.png");
 		rulesPanel.setLayout(null);
 
@@ -443,11 +472,18 @@ public class SliceItController implements ActionListener {
 		});
 		countdownTimer.start();
 
-		// Add mouse motion listener to detect dragging (slicing).
-		// OpenAI.(2025). ChatGPT [Large Language Model]
-		// When prompted with, "How can I check if mouse has been dragged on the fruit and bomb?" , I provided the fruit and bomb class as well and this was the generated code. 
+		 /** 
+		  * Add mouse motion listener to detect dragging (slicing).
+		  * OpenAI.(2025). ChatGPT [Large Language Model]
+		  * When prompted with, "How can I check if mouse has been dragged on the fruit and bomb?" , I provided the fruit and bomb class as well and this was the generated code. 
+		  */
 		gamePanel.addMouseMotionListener(new MouseAdapter() {
 			@Override
+			
+			/**
+			 * Checks if the user sliced a bomb or fruit using mouse events.
+			 * @param e       MouseEvent containing details of  drag event
+			 */
 			public void mouseDragged(MouseEvent e) {
 				if (gameOver) {
 					return;
@@ -519,7 +555,13 @@ public class SliceItController implements ActionListener {
 			setLayout(null);
 			setBackground(Color.pink);
 			setPreferredSize(new Dimension(500, 500));
-			// Load background image 
+			
+			/**
+			 * Background Image Credit:
+			 * OpenAI.(2025). ChatGPT [Large Language Model]
+			 * It is an image for the game screen
+			 * This image is used for educational/non-commercial purposes only.
+			 */
 			try {
 				backgroundImage = ImageIO.read(new File("images/playBackgrnd.png"));
 			} catch (IOException e) {
@@ -657,7 +699,13 @@ public class SliceItController implements ActionListener {
 	 * Displays the leaderboard panel with top 5 scores.
 	 */
 	private void leaderboardPanel() {
-	    // Initialize panel
+	    
+		/**
+		 * Background Image Credit:
+		 * OpenAI.(2025). ChatGPT [Large Language Model]
+		 * It is an image for the leaderboard screen
+		 * This image is used for educational/non-commercial purposes only.
+		 */
 	    leaderBoardPanel = new BackgroundPanel("images/leaderboardbackgrnd.png");
 	    leaderBoardPanel.setLayout(null);
 	    leaderBoardPanel.setBackground(Color.pink);
